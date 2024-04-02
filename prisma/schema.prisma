@@ -43,6 +43,7 @@ model percentages {
   user_id        Int?
   development_id Int?
   percentage     Decimal?      @db.Decimal(10, 0)
+  deleted        Int?          @default(0)
   users          users?        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "percentages_ibfk_1")
   developments   developments? @relation(fields: [development_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "percentages_ibfk_2")
 
