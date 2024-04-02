@@ -9,7 +9,6 @@ const save = async (req, res) => {
   
       const new_user = await prisma.users.create({
         data: user
-        ,
       });
   
       return res.status(200).send({ message: "Usuario agregado con éxito", result: new_user });

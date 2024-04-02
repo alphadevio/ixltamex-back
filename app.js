@@ -2,7 +2,6 @@ const express = require("express")
 const app = express()
 const cors = require("cors")
 const router = require("./src/routes")
-require('dotenv').config()
 
 
 const port = 8000
