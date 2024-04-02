@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model desarollos {
+  id       Int     @id @default(autoincrement())
+  name     String? @db.VarChar(100)
+  location String? @db.VarChar(100)
+  apples   Int?
+  lots     Int?
+
+  @@index([id], map: "ix_desarollos_id")
+}
+
+model users {
+  id           Int      @id @default(autoincrement())
+  name         String?  @db.VarChar(100)
+  email        String?  @unique(map: "email") @db.VarChar(100)
+  phone_number String?  @db.VarChar(13)
+  password     String?  @db.VarChar(100)
+  deleted      Int?
+  profile_id   Int      @default(2)
+  profiles     profiles @relation(fields: [profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "profile_id")
+
+  @@index([id], map: "ix_users_id")
+  @@index([profile_id], map: "profile_id_idx")
+}
+
+model profiles {
+  id    Int     @id @default(autoincrement())
+  name  String  @db.VarChar(20)
+  users users[]
+}
