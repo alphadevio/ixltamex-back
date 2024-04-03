@@ -49,23 +49,23 @@ const fetch = async (req,res) =>{
     }
     const result = await prisma.developments.findMany({
       where,
-      select:{
-        id:true,
-        name:true,
-        apples:true,
-        lots:true,
-        location:true,
-        percentages:{
-            select:{
-                percentage:true,
-                user_id:true,
-                users:{
-                    select:{name:true
-                    }
-                }
-            }
-        }
-      }
+      select: {
+        id: true,
+        name: true,
+        apples: true,
+        lots: true,
+        location: true,
+        percentages: {
+          select: {
+            id:true,
+            percentage: true,
+            user_id: true,
+            users: {
+              select: { name: true },
+            },
+          },
+        },
+      },
     });
 
     if (result.length === 0) {
@@ -78,6 +78,7 @@ const fetch = async (req,res) =>{
 const update = async (req,res) =>{
     let payload = req.body;
     const development = new Development(payload);
+    const percentages = req.body.socios
     let data = {};
   
     if (development.name !== undefined && development.name !== null) {
@@ -94,6 +95,24 @@ const update = async (req,res) =>{
 
     if (development.lots !== undefined && development.lots !== null) {
         data.lots = development.lots;
+    }
+
+    console.log(percentages);
+    if (percentages) {
+      await Promise.all(percentages.map(async (percentage) => {
+        console.log(percentage);
+        await prisma.percentages.updateMany({
+          data: {
+            percentage: percentage.percentage
+          },
+          where: {
+            AND: [
+              { development_id: development.id },
+              { user_id: percentage.user_id }
+            ]
+          }
+        });
+      }));
     }
 
     const updated_development = await prisma.developments.update({
