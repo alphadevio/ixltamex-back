@@ -3,10 +3,32 @@ const { User } = require("../models/User");
 const prisma = new PrismaClient();
   
 const save = async (req, res) => {
+
+
+
     try {
       let payload = req.body;
       const user = new User(payload);
   
+      let flag = true
+      let error
+
+      const repeated_email = await prisma.users.findFirst({
+        where:{
+          email:user.email,
+          deleted:0
+        }
+      })
+      
+      if (repeated_email) {
+        flag = false
+        error = "Error, ya existe un usuario con ese correo"
+      }
+
+      if (flag === false) {
+        return res.status(400).send({error})
+      }
+
       const new_user = await prisma.users.create({
         data: user
       });

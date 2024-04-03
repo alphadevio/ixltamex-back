@@ -6,9 +6,32 @@ const prisma = new PrismaClient();
 const save = async (req,res) =>{
     const payload = req.body
     const development = new Development(payload);
+    const socios = req.body.socios;
 
     try {
         const new_development = await prisma.developments.create({data:development})
+
+        if (socios) {
+            let percentage = 0 
+            socios.forEach(socio => {
+                percentage += parseFloat(socio.percentage)
+            });
+            
+            if (percentage > 100) {
+                return res.status(400).send({error:"La suma de los porcentajes son mas de 100"})
+            }
+
+            const sociosData = socios.map(socio => ({
+                development_id: new_development.id,
+                user_id: socio.user_id,
+                percentage: socio.percentage
+            }));
+
+            // Assuming 'prisma' is your Prisma client instance
+            await prisma.percentages.createMany({
+                data: sociosData
+            });
+        }
 
         return res.status(201).send({message:"Development created succesfully",result:new_development})
     } catch (error) {
