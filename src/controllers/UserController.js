@@ -3,9 +3,6 @@ const { User } = require("../models/User");
 const prisma = new PrismaClient();
   
 const save = async (req, res) => {
-
-
-
     try {
       let payload = req.body;
       const user = new User(payload);
@@ -118,11 +115,47 @@ const save = async (req, res) => {
   
     return res.status(200).send({ message: "Usuario modificado exitosamente" });
   };
+
+  const login = async (req,res) =>{
+    const { email, password } = req.body
+    try {
+      let user = await prisma.users.findFirst({
+        where:{
+          AND:[
+            {
+              email:email
+            },
+            {
+              password:password
+            },
+            {
+              deleted:0
+            }
+          ]
+        }
+      })
+  
+      if (user) {
+        return res.status(200).send({message:"Login correcto"})
+      } else{
+        return res.status(403).send({message:"Login incorrecto"})
+      }
+    } catch (error) {
+      return res.send(500).status({error,message:"Internal server error"})
+    }
+
+
+  }
+
+  const forgot_password = (req,res) =>{
+    
+  }
   
   module.exports.UserController = {
     save,
     fetch,
     update,
-    destroy
+    destroy,
+    login
   };
   

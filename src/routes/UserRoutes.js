@@ -6,5 +6,6 @@ UserRouter.get('/',UserController.fetch)
 UserRouter.post('/',UserController.save)
 UserRouter.put('/',UserController.update)
 UserRouter.delete('/',UserController.destroy)
+UserRouter.post('/login',UserController.login)
 
 module.exports = UserRouter
