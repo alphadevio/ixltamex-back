@@ -47,7 +47,26 @@ const fetch = async (req,res) =>{
             not:1
         }
     }
-    const result = await prisma.developments.findMany({where})
+    const result = await prisma.developments.findMany({
+      where,
+      select:{
+        id:true,
+        name:true,
+        apples:true,
+        lots:true,
+        location:true,
+        percentages:{
+            select:{
+                percentage:true,
+                user_id:true,
+                users:{
+                    select:{name:true
+                    }
+                }
+            }
+        }
+      }
+    });
 
     if (result.length === 0) {
         return res.status(404).send({message:"Empty"})
