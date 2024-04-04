@@ -19,12 +19,12 @@ const save = async (req, res) => {
       
       if (repeated_email) {
         flag = false
-        error = "Error, ya existe un usuario con ese correo"
+        throw new Error("Existe una cuenta con ese correo");
       }
 
-      if (flag === false) {
-        return res.status(400).send({error})
-      }
+      // if (flag === false) {
+      //   return res.status(400).send({error})
+      // }
 
       const new_user = await prisma.users.create({
         data: user
@@ -33,8 +33,8 @@ const save = async (req, res) => {
       return res.status(200).send({ message: "Usuario agregado con éxito", result: new_user });
   
     } catch (error) {
-        console.log(error);
-      return res.status(500).send({ message: "Error interno del servidor", error: error.message });
+      console.log(error);
+      return res.status(500).send({ message: "Error", error: error.message });
     }
   }
   
@@ -97,9 +97,9 @@ const save = async (req, res) => {
         data.phone_number = user.phone_number;
     }
 
-    if (user.password !== undefined && user.password !== null) {
-        data.password = user.password;
-    }
+    // if (user.password !== undefined && user.password !== null) {
+    //     data.password = user.password;
+    // }
 
     if (user.profile_id !== undefined && user.profile_id !== null) {
         data.profile_id = user.profile_id;
@@ -120,6 +120,12 @@ const save = async (req, res) => {
     const { email, password } = req.body
     try {
       let user = await prisma.users.findFirst({
+        select:{
+          id:true,
+          email:true,
+          profile_id:true,
+          profiles:true
+        },
         where:{
           AND:[
             {
@@ -136,7 +142,7 @@ const save = async (req, res) => {
       })
   
       if (user) {
-        return res.status(200).send({message:"Login correcto"})
+        return res.status(200).send({message:"Login correcto",user})
       } else{
         return res.status(403).send({message:"Login incorrecto"})
       }
@@ -148,7 +154,7 @@ const save = async (req, res) => {
   }
 
   const forgot_password = (req,res) =>{
-    
+    const { password } = req.body
   }
   
   module.exports.UserController = {
