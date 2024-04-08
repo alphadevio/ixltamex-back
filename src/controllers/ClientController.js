@@ -40,7 +40,11 @@ const fetch = async (req,res) =>{
 const update = async (req,res) =>{
     let payload = req.body;
     const client = new Client(payload);
-    const ID_file = req.file.filename
+    let ID_file
+    if (req.file.filename) {
+      ID_file = req.file.filename
+    }
+
 
     let data = {};
   
