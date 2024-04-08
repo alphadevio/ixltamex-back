@@ -1,11 +1,18 @@
 const { PrismaClient } = require("@prisma/client");
 const { User } = require("../models/User");
+const bcrypt = require('bcrypt');
 const prisma = new PrismaClient();
   
 const save = async (req, res) => {
+  const salt_rounds = 10;
     try {
       let payload = req.body;
+      let raw_password = req.body.password
+      const hashed = await bcrypt.genSalt(salt_rounds,raw_password)
+      console.log(raw_password,hashed);
+      payload.password = hashed
       const user = new User(payload);
+
   
       let flag = true
       let error

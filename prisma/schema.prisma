@@ -10,7 +10,7 @@ datasource db {
 model users {
   id           Int           @id @default(autoincrement())
   name         String?       @db.VarChar(100)
-  email        String?       @unique(map: "email") @db.VarChar(100)
+  email        String?       @db.VarChar(100)
   phone_number String?       @db.VarChar(13)
   password     String?       @db.VarChar(100)
   deleted      Int?
@@ -49,4 +49,12 @@ model percentages {
 
   @@index([development_id], map: "development_id")
   @@index([user_id], map: "user_id")
+}
+
+model clients {
+  id           Int     @id @unique(map: "id") @default(autoincrement())
+  name         String? @db.VarChar(100)
+  phone_number String? @db.VarChar(13)
+  id_file_name String? @db.VarChar(50)
+  deleted      Int?    @default(0)
 }
