@@ -41,7 +41,7 @@ const update = async (req,res) =>{
     let payload = req.body;
     const client = new Client(payload);
     let ID_file
-    if (req.file.filename) {
+    if (req.file) {
       ID_file = req.file.filename
     }
 
