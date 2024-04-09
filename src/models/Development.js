@@ -3,7 +3,6 @@ class Development {
         this.id = payload.id
         this.name = payload.name
         this.location = payload.location
-        this.apples = payload.apples
         this.lots = payload.lots
         this.deleted = payload.deleted || 0
     }

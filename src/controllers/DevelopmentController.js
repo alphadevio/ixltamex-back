@@ -7,6 +7,7 @@ const save = async (req,res) =>{
     const payload = req.body
     const development = new Development(payload);
     const socios = req.body.socios;
+    const apples = req.body.apples;
 
     try {
         const new_development = await prisma.developments.create({data:development})
@@ -33,8 +34,24 @@ const save = async (req,res) =>{
             });
         }
 
+        if (apples) {
+
+          const apples_data = apples.map(apple => ({
+            id_development: new_development.id,
+            name: apple.name,
+        }));
+
+         await prisma.apples.createMany({
+            data:apples_data
+         })
+          
+        }
+
+
+
         return res.status(201).send({message:"Development created succesfully",result:new_development})
     } catch (error) {
+        console.log(error);
         return res.status(500).send({message:"Internal server error",error:error.message})
     }
 
@@ -65,6 +82,13 @@ const fetch = async (req,res) =>{
             },
           },
         },
+        apples:{
+          where:{
+            deleted:{
+              not:1
+            }
+          }
+        }
       },
     });
 
