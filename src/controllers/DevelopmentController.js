@@ -35,20 +35,32 @@ const save = async (req,res) =>{
         }
 
         if (apples) {
-
-          const apples_data = apples.map(apple => ({
-            id_development: new_development.id,
-            name: apple.name,
-        }));
-
-         await prisma.apples.createMany({
-            data:apples_data
-         })
-          
-        }
-
-
-
+          for (const apple of apples) {
+              const new_apple = await prisma.apples.create({
+                  data: {
+                      name: apple.name,
+                      id_development: new_development.id
+                  }
+              });
+      
+              if (apple.lots) {
+                  const lots_data = await apple.lots.map(lot => ({
+                      id_apple: new_apple.id,
+                      lot_number: lot.lot_number, // Corrected property name
+                      area: lot.area,
+                      top_width: lot.top_width,
+                      bottom_width: lot.bottom_width,
+                      right_length: lot.right_length,
+                      left_length: lot.left_length
+                  }));
+      
+                  await prisma.lots.createMany({
+                      data: lots_data
+                  });
+              }
+          }
+      }
+  
         return res.status(201).send({message:"Development created succesfully",result:new_development})
     } catch (error) {
         console.log(error);
@@ -86,6 +98,15 @@ const fetch = async (req,res) =>{
           where:{
             deleted:{
               not:1
+            },
+          },
+          include:{
+            lots:{
+              where:{
+                deleted:{
+                  not:1
+                }
+              }
             }
           }
         }
@@ -121,10 +142,8 @@ const update = async (req,res) =>{
         data.lots = development.lots;
     }
 
-    console.log(percentages);
     if (percentages) {
       await Promise.all(percentages.map(async (percentage) => {
-        console.log(percentage);
         await prisma.percentages.updateMany({
           data: {
             percentage: percentage.percentage

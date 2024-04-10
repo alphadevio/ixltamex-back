@@ -30,7 +30,7 @@ const fetch = async (req,res) =>{
         where.id = id
     }
 
-    const result = await prisma.apples.findMany({where})
+    const result = await prisma.apples.findMany({where,include:{lots:true}})
 
     if (result.length === 0) {
         return res.status(404).send({message:"Empty"})

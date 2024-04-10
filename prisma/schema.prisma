@@ -65,6 +65,23 @@ model apples {
   id_development Int?
   deleted        Int?          @default(0)
   developments   developments? @relation(fields: [id_development], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "apples_ibfk_1")
+  lots           lots[]
 
   @@index([id_development], map: "id_development")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model lots {
+  id           Int     @id @unique(map: "id") @default(autoincrement())
+  id_apple     Int?
+  lot_number   Int?
+  area         Float
+  top_width    Float
+  bottom_width Float
+  right_length Float
+  left_length  Float
+  deleted      Int?    @default(0)
+  apples       apples? @relation(fields: [id_apple], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lots_ibfk_1")
+
+  @@index([id_apple], map: "id_apple")
 }
