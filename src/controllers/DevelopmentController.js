@@ -170,18 +170,52 @@ const update = async (req,res) =>{
 }
 
 const destroy = async (req,res) =>{
-    let development_id = req.body.id;
+  let development_id = req.body.id;
+
+  await prisma.developments.updateMany({
+    where: {
+      id: development_id,
+    },
+    data: {
+      deleted: 1,
+    },
+  });
   
-    await prisma.developments.updateMany({
-      where: {
-        id: development_id,
+  const apples = await prisma.apples.findMany({
+    select: {
+      id: true,
+    },
+    where: {
+      deleted: {
+        not: 1,
       },
-      data: {
-        deleted: 1,
-      },
-    });
+      id_development: development_id,
+    },
+  });
   
-    return res.status(200).send({ message: "Desarollo exitosamente borrado" });
+  const apple_ids = apples.map(apple => apple.id);
+  
+  await prisma.apples.updateMany({
+    where: {
+      id_development: development_id,
+    },
+    data: {
+      deleted: 1,
+    },
+  });
+  
+  await prisma.lots.updateMany({
+    where: {
+      id_apple: {
+        in: apple_ids,
+      },
+    },
+    data: {
+      deleted: 1,
+    },
+  });
+    
+  return res.status(200).send({ message: "Desarollo exitosamente borrado" });
 };
 
 module.exports.DevelopmentController = {save,fetch,update,destroy}

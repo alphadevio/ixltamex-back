@@ -65,16 +65,25 @@ const update = async (req,res) =>{
 }
 
 const destroy = async (req,res) =>{
-    let apple_id = req.body.id;
+    let id_apple = req.body.id;
   
     await prisma.apples.updateMany({
       where: {
-        id: apple_id,
+        id: id_apple,
       },
       data: {
         deleted: 1,
       },
     });
+
+    await prisma.lots.updateMany({
+      where:{
+        id_apple:id_apple
+      },
+      data:{
+        deleted:1
+      }
+    })
   
     return res.status(200).send({ message: "Apple deleted succesfully" });
 };
