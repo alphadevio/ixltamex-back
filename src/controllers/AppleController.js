@@ -39,30 +39,104 @@ const fetch = async (req,res) =>{
     return res.status(200).send({result})
 }
 
-const update = async (req,res) =>{
+const update = async (req, res) => {
+  try {
+      let payload = req.body;
+      const apple = new Apple(payload);
+      const lots = req.body.lots;
+      let data = {};
 
-    let payload = req.body;
-    const apple = new Apple(payload);
-    let data = {};
-  
-    if (apple.name !== undefined && apple.name !== null) {
-      data.name = apple.name;
-    }
+      if (apple.name !== undefined && apple.name !== null) {
+          data.name = apple.name;
+      }
 
-    if (apple.id_development !== undefined && apple.id_development !== null) {
-        data.id_development = apple.id_development;
-    }
+      if (apple.id_development !== undefined && apple.id_development !== null) {
+          data.id_development = apple.id_development;
+      }
 
-    const updated_apple = await prisma.apples.update({
-        where: {
-          id: apple.id,
-        },
-        data: data,
-      });
+      if (lots) {
+        
+        const existing_lot_numbers = await prisma.lots.findMany({
+            select: {
+                lot_number: true
+            },
+            where: {
+                deleted: {
+                    not: 1
+                },
+                id_apple: apple.id
+            }
+        });
+
+          await Promise.all(lots.map(async (lot) => {
+
+            console.log(existing_lot_numbers);
+
+            const lot_number_exists = existing_lot_numbers.some(existingLot => existingLot.lot_number === lot.lot_number);
     
-    return res.status(200).send({ message: "Apple updated succesfully", result:updated_apple});
+            console.log(lot_number_exists);
+            
+            if (lot_number_exists) {
+                throw new Error("El numero de lote ingresado ya existe");
+            }
 
+            
+            lot_data = {}
+
+            if (lot.id_apple !== undefined && lot.id_apple !== null) {
+              lot_data.id_apple = lot.id_apple;
+            }
+
+            if (lot.lot_number !== undefined && lot.lot_number !== null) {
+
+                lot_data.lot_number = lot.lot_number;
+            }
+
+            if (lot.area !== undefined && lot.area !== null) {
+              lot_data.area = lot.area;
+            }
+
+            if (lot.top_width !== undefined && lot.top_width !== null) {
+              lot_data.top_width = lot.top_width;
+            }
+
+            if (lot.bottom_width !== undefined && lot.bottom_width !== null) {
+              lot_data.bottom_width = lot.bottom_width;
+            }
+
+            if (lot.right_length !== undefined && lot.right_length !== null) {
+              lot_data.right_length = lot.right_length;
+            }
+
+            if (lot.left_length !== undefined && lot.left_length !== null) {
+                lot_data.left_length = lot.left_length;
+            }
+
+            await prisma.lots.update({
+                where: {
+                    id: lot.id,
+                },
+                data: lot_data,
+            });
+
+          }));
+      }
+
+      const updated_apple = await prisma.apples.update({
+          where: {
+              id: apple.id,
+          },
+          data: data,
+      });
+
+      return res.status(200).send({ message: "Apple updated successfully", result: updated_apple });
+  } catch (error) {
+      console.log(error.message);
+      return res.status(500).send({ error: error.message });
+  }
 }
+
+
 
 const destroy = async (req,res) =>{
     let id_apple = req.body.id;
