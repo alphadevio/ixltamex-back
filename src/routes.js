@@ -3,6 +3,7 @@ const { ClientRoutes } = require('./routes/ClientRoutes');
 const DevelopmentRouter = require('./routes/DevelopmentRoute');
 const { LotRoutes } = require('./routes/LotRoutes');
 const PercentageRouter = require('./routes/PercentageRoutes');
+const { SalesRoutes } = require('./routes/SalesRoutes');
 const UserRouter = require('./routes/UserRoutes')
 
 const { Router } = require("express");
@@ -15,5 +16,6 @@ router.use('/percentage',PercentageRouter)
 router.use('/client',ClientRoutes)
 router.use('/apple',AppleRoutes)
 router.use('/lot',LotRoutes)
+router.use('/sale',SalesRoutes)
 
 module.exports = router;
