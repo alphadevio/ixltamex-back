@@ -101,3 +101,10 @@ model sales {
 
   @@index([id_client], map: "id_client")
 }
+
+model periods {
+  id      Int    @id @default(autoincrement())
+  name    String @db.VarChar(100)
+  days    Int
+  deleted Int    @default(0)
+}
