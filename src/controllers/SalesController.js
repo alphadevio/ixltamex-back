@@ -49,6 +49,14 @@ const update = async (req, res) => {
       data.price = sale.price
     }
 
+    if(sale.id_client !== undefined || sale.id_client !== null){
+      data.id_client = sale.id_client
+    }
+
+    if(sale.id_lot !== undefined || sale.id_lot !== null){
+      data.id_lot = sale.id_lot
+    }
+
     const updatedSale = await prisma.sales.update ({
       data:data,
       where:{
