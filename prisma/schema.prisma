@@ -97,15 +97,19 @@ model sales {
   created_at  DateTime? @default(now()) @db.Timestamp(0)
   modified_at DateTime? @default(now()) @db.Timestamp(0)
   deleted     Int       @default(0)
+  id_period   Int
   clients     clients   @relation(fields: [id_client], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sales_ibfk_1")
   lots        lots      @relation(fields: [id_lot], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sales_ibfk_2")
+  periods     periods   @relation(fields: [id_period], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sales_ibfk_3")
 
   @@index([id_client], map: "id_client")
+  @@index([id_period], map: "id_period")
 }
 
 model periods {
-  id      Int    @id @default(autoincrement())
-  name    String @db.VarChar(100)
+  id      Int     @id @default(autoincrement())
+  name    String  @db.VarChar(100)
   days    Int
-  deleted Int    @default(0)
+  deleted Int     @default(0)
+  sales   sales[]
 }

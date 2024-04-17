@@ -30,6 +30,7 @@ const fetch = async (req, res) => {
       include: {
         lots: true,
         clients: true,
+        periods: true,
       },
       where: {
         deleted: {
