@@ -5,6 +5,7 @@ class Sale{
         this.id_lot = payload.id_lot
         this.price = payload.price
         this.paid = payload.paid || 0
+        this.deleted = payload.deleted || 0
     }
 }
 

@@ -27,9 +27,14 @@ const save = async (req, res) => {
 const fetch = async (req, res) => {
   try {
     const result = await prisma.sales.findMany({
-      include:{
+      include: {
         lots: true,
         clients: true,
+      },
+      where: {
+        deleted: {
+          not: 1
+        }
       }
     })
 
@@ -45,21 +50,21 @@ const update = async (req, res) => {
     const sale = new Sale(payload)
     let data = {}
 
-    if(sale.price !== undefined || sale.price !== null){
+    if (sale.price !== undefined || sale.price !== null) {
       data.price = sale.price
     }
 
-    if(sale.id_client !== undefined || sale.id_client !== null){
+    if (sale.id_client !== undefined || sale.id_client !== null) {
       data.id_client = sale.id_client
     }
 
-    if(sale.id_lot !== undefined || sale.id_lot !== null){
+    if (sale.id_lot !== undefined || sale.id_lot !== null) {
       data.id_lot = sale.id_lot
     }
 
-    const updatedSale = await prisma.sales.update ({
-      data:data,
-      where:{
+    const updatedSale = await prisma.sales.update({
+      data: data,
+      where: {
         id: sale.id
       }
     })
@@ -67,10 +72,25 @@ const update = async (req, res) => {
     return res.status(200).send({ message: "Venta modificada exitosamente", updatedSale });
 
   } catch (error) {
-    return res.status(500).send({error: error.message});
+    return res.status(500).send({ error: error.message });
   }
 }
 
+const destroy = async (req, res) => {
+  let id_sale = req.body.id;
+
+  await prisma.sales.updateMany({
+    where: {
+      id: id_sale,
+    },
+    data: {
+      deleted: 1,
+    },
+  });
+
+  return res.status(200).send({ message: "Sale deleted succesfully" });
+};
 
 
-module.exports.SalesController = { save, fetch, update }
+
+module.exports.SalesController = { save, fetch, update, destroy }
