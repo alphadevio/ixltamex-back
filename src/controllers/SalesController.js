@@ -7,9 +7,23 @@ const save = async (req, res) => {
     const payload = req.body;
     const sale = new Sale(payload);
 
-    new_sale = await prisma.sales.create({
+    const new_sale = await prisma.sales.create({
       data: sale,
     });
+
+    const future_payment_dates = await calculateFuturePayments(sale.payment_day || null, sale.payment_weekday || null, sale.frequency_type, sale.frequency_amount, sale.price)
+
+    console.log(future_payment_dates);
+    const payments_data = future_payment_dates.map(payment => ({
+      id_sale: new_sale.id,
+      amount: payment.amount,
+      payment_date: payment.date
+  }));
+  
+  // Create new payments using Prisma
+  const new_payments = await prisma.payments.createMany({
+      data: payments_data
+  });
 
     return res.status(201).send({ new_sale, message: "Sale created" })
 
@@ -30,7 +44,7 @@ const fetch = async (req, res) => {
       include: {
         lots: true,
         clients: true,
-        periods: true,
+        payments:true
       },
       where: {
         deleted: {
@@ -92,6 +106,71 @@ const destroy = async (req, res) => {
   return res.status(200).send({ message: "Sale deleted succesfully" });
 };
 
+
+async function calculateFuturePayments(payment_day, payment_weekday, frequency_type, frequency_amount, total_amount) {
+  // Get today's date
+  let currentDate = new Date();
+
+  // Initialize variables for storing future payment dates and amounts
+  let futurePayments = [];
+  let paymentAmount = total_amount / frequency_amount;
+
+  // Determine the interval for adding days/weeks/months
+  let interval = 1;
+  if (frequency_type === "biweekly") {
+      interval = 14; // 14 days in a biweekly interval
+  } else if (frequency_type === "monthly") {
+      interval = 30;
+  }
+
+  // Determine the starting day for the payment schedule
+  if (payment_day) {
+      // If payment_day is specified, set the date to that day
+      currentDate.setDate(payment_day);
+  } else if (payment_weekday) {
+      // If payment_weekday is specified, set the date to the next occurrence of that weekday
+      currentDate = getNextWeekday(currentDate, convertWeekdayToNumber(payment_weekday));
+  }
+
+  // Loop to calculate future payment dates and amounts
+  for (let i = 0; i < frequency_amount; i++) {
+      // Create a new Date object for the next payment date
+      let nextPaymentDate = new Date(currentDate.getTime() + (interval * 24 * 60 * 60 * 1000 * i));
+
+      // Push the payment date and amount to the futurePayments array
+      futurePayments.push({ date: nextPaymentDate.getTime(), amount: paymentAmount });
+  }
+
+  return futurePayments;
+}
+
+// Function to get the next occurrence of a weekday
+function getNextWeekday(date, dayOfWeek) {
+  const daysToAdd = (dayOfWeek - date.getDay() + 7) % 7;
+  date.setDate(date.getDate() + daysToAdd);
+  return date;
+}
+
+function convertWeekdayToNumber(weekdayString) {
+  switch (weekdayString.toLowerCase()) {
+      case 'sunday':
+          return 0;
+      case 'monday':
+          return 1;
+      case 'tuesday':
+          return 2;
+      case 'wednesday':
+          return 3;
+      case 'thursday':
+          return 4;
+      case 'friday':
+          return 5;
+      case 'saturday':
+          return 6;
+      default:
+          return -1; // Return -1 for invalid input
+  }
+}
 
 
 module.exports.SalesController = { save, fetch, update, destroy }
