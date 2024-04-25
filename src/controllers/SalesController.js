@@ -13,15 +13,13 @@ const save = async (req, res) => {
 
     const future_payment_dates = await calculateFuturePayments(sale.payment_day || null, sale.payment_weekday || null, sale.frequency_type, sale.frequency_amount, sale.price)
 
-    console.log(future_payment_dates);
     const payments_data = future_payment_dates.map(payment => ({
       id_sale: new_sale.id,
       amount: payment.amount,
       payment_date: payment.date
   }));
   
-  // Create new payments using Prisma
-  const new_payments = await prisma.payments.createMany({
+  await prisma.payments.createMany({
       data: payments_data
   });
 
@@ -53,6 +51,17 @@ const fetch = async (req, res) => {
       }
     })
 
+    
+    result.forEach(sale => {
+      let totalAmount = 0;
+      sale.payments.forEach(payment => {
+        totalAmount += parseFloat(payment.amount);
+      });
+      sale.total_amount = totalAmount;
+  
+      sale.remaining = sale.total_amount - parseFloat(sale.paid);
+    });
+  
     return res.status(200).send({ result })
   } catch (error) {
     console.log(error)
@@ -77,14 +86,14 @@ const update = async (req, res) => {
       data.id_lot = sale.id_lot
     }
 
-    const updatedSale = await prisma.sales.update({
+    const updated_sale = await prisma.sales.update({
       data: data,
       where: {
         id: sale.id
       }
     })
 
-    return res.status(200).send({ message: "Venta modificada exitosamente", updatedSale });
+    return res.status(200).send({ message: "Venta modificada exitosamente", updated_sale });
 
   } catch (error) {
     return res.status(500).send({ error: error.message });

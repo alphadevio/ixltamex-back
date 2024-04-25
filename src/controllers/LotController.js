@@ -40,6 +40,7 @@ const save = async (req,res) =>{
 const fetch = async (req,res) =>{
 
     const id = req.body.id
+
     let where = {
         deleted:{
             not:1
@@ -55,6 +56,23 @@ const fetch = async (req,res) =>{
     if (result.length === 0) {
         return res.status(404).send({message:"Empty"})
     }
+
+    const sold_lots = await prisma.sales.findMany({
+        select:{
+            id_lot:true
+        }
+    })
+
+    result.forEach((lot) => {
+        const sold = sold_lots.some((sold_lots) => sold_lots.id_lot === lot.id);
+
+        if (sold) {
+            lot.sold = true;
+        }
+        else {
+            lot.sold = false;
+        }
+    });
 
     return res.status(200).send({result})
 }

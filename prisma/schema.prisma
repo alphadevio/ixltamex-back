@@ -93,7 +93,7 @@ model sales {
   id_client        Int
   id_lot           Int        @unique(map: "id_lot")
   price            Float?
-  paid             Float?     @default(0)
+  paid             Decimal?   @default(0.00) @db.Decimal(10, 2)
   created_at       DateTime?  @default(now()) @db.Timestamp(0)
   modified_at      DateTime?  @default(now()) @db.Timestamp(0)
   deleted          Int        @default(0)
