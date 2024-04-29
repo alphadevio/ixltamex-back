@@ -71,11 +71,30 @@ const save = async (req,res) =>{
 
 const fetch = async (req,res) =>{
 
-    let where = {
-        deleted:{
-            not:1
-        }
-    }
+  const id = parseInt(req.query.id);
+  const id_apple = parseInt(req.query.id_apple);
+
+  let where = {
+    deleted: {
+      not: 1,
+    },
+  };
+
+  const where_apples = {
+    deleted: {
+      not: 1,
+    },
+  };
+
+  if (id) {
+    where.id = id;
+  }
+
+  if (id_apple) {
+    where_apples.id = id_apple;
+  }
+
+
     const result = await prisma.developments.findMany({
       where,
       select: {
@@ -86,7 +105,7 @@ const fetch = async (req,res) =>{
         location: true,
         percentages: {
           select: {
-            id:true,
+            id: true,
             percentage: true,
             user_id: true,
             users: {
@@ -94,22 +113,18 @@ const fetch = async (req,res) =>{
             },
           },
         },
-        apples:{
-          where:{
-            deleted:{
-              not:1
+        apples: {
+          where: where_apples,
+          include: {
+            lots: {
+              where: {
+                deleted: {
+                  not: 1,
+                },
+              },
             },
           },
-          include:{
-            lots:{
-              where:{
-                deleted:{
-                  not:1
-                }
-              }
-            }
-          }
-        }
+        },
       },
     });
 
