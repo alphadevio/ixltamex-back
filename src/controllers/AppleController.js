@@ -70,12 +70,8 @@ const update = async (req, res) => {
 
           await Promise.all(lots.map(async (lot) => {
 
-            console.log(existing_lot_numbers);
-
             const lot_number_exists = existing_lot_numbers.some(existingLot => existingLot.lot_number === lot.lot_number);
-    
-            console.log(lot_number_exists);
-            
+        
             if (lot_number_exists) {
                 throw new Error("El numero de lote ingresado ya existe");
             }
@@ -131,7 +127,6 @@ const update = async (req, res) => {
 
       return res.status(200).send({ message: "Apple updated successfully", result: updated_apple });
   } catch (error) {
-      console.log(error.message);
       return res.status(500).send({ error: error.message });
   }
 }

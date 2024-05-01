@@ -9,8 +9,6 @@ const save = async (req, res) => {
         const payload = req.body
         const period = new Periods(payload);
 
-        console.log(payload)
-
         new_period = await prisma.periods.create({
             data: period
         })

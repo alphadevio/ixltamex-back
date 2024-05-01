@@ -9,13 +9,9 @@ const save = async (req, res) => {
       let payload = req.body;
       let raw_password = req.body.password
       const hashed = await bcrypt.genSalt(salt_rounds,raw_password)
-      console.log(raw_password,hashed);
       payload.password = hashed
+      
       const user = new User(payload);
-
-  
-      let flag = true
-      let error
 
       const repeated_email = await prisma.users.findFirst({
         where:{
@@ -25,14 +21,8 @@ const save = async (req, res) => {
       })
       
       if (repeated_email) {
-        flag = false
         throw new Error("Existe una cuenta con ese correo");
       }
-
-      // if (flag === false) {
-      //   return res.status(400).send({error})
-      // }
-
       const new_user = await prisma.users.create({
         data: user
       });

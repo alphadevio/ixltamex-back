@@ -4,8 +4,7 @@ const prisma = new PrismaClient();
 const pay = async (req, res) => {
     try {
         const id_payment = req.body.id_payment;
-        let paid_amount = parseFloat(req.body.paid_amount);
-        const original_amount = paid_amount
+        const paid_amount = parseFloat(req.body.paid_amount);
 
         const payment = await prisma.payments.findUnique({
             where:{
@@ -13,31 +12,40 @@ const pay = async (req, res) => {
             }
         });
 
-        if (parseFloat(payment.paid_amount) > 0){
-            paid_amount = parseFloat(payment.paid_amount) + parseFloat(paid_amount);
+        let new_paid_amount
+        if (!paid_amount) { //case where the user doesn't specify the amount
+            new_paid_amount = parseFloat(payment.amount)
         }
+        else if (parseFloat(payment.paid_amount) > 0){ //case where the user specifies the amount and there's an already existing amount
+            new_paid_amount = parseFloat(payment.paid_amount) + paid_amount;
+        }
+        else{ //case where the user specifies the amount but no existing amount and it's less that the amount to be paid
+            new_paid_amount = paid_amount
+        }
+
+        const original_amount = paid_amount || parseFloat(payment.amount);
+
 
         const new_payment = await prisma.payments.update({
             data: {
-                paid_amount: paid_amount
+                paid_amount: new_paid_amount
             },
             where: {
                 id: id_payment
             }
         });
 
-        if (parseFloat(new_payment.amount) == parseFloat(new_payment.paid)){
+        if (parseFloat(new_payment.paid_amount) >= parseFloat(new_payment.amount)){
             await prisma.payments.update({
                 data: {
                     paid: 1
                 },
                 where: {
-                    id: id_payment
+                    id: new_payment.id
                 }  
             });
         }
 
-        const amount_paid = original_amount;
         const id_sale = new_payment.id_sale;
 
         const sale = await prisma.sales.findUnique({
@@ -46,13 +54,11 @@ const pay = async (req, res) => {
             }
         });
 
-        let new_amount;
-        console.log(sale);
+        let new_sale_amount;
         if (parseFloat(sale.paid) === 0) {
-            new_amount = parseFloat(amount_paid);
+            new_sale_amount = original_amount;
         } else {
-            new_amount = parseFloat(sale.paid) + parseFloat(amount_paid);
-            console.log(new_amount);
+            new_sale_amount = parseFloat(sale.paid) + original_amount;
         }
 
         await prisma.sales.update({
@@ -60,7 +66,7 @@ const pay = async (req, res) => {
                 id: id_sale
             },
             data: {
-                paid: new_amount
+                paid: new_sale_amount
             }
         });
 
