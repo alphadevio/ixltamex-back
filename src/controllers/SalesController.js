@@ -10,29 +10,40 @@ const save = async (req, res) => {
     const new_sale = await prisma.sales.create({
       data: sale,
     });
-
-    const future_payment_dates = await calculateFuturePayments(sale.payment_day || null, sale.payment_weekday || null, sale.frequency_type, sale.frequency_amount, sale.price)
-
-    const payments_data = future_payment_dates.map(payment => ({
+    
+    let payment_occurrences;
+    
+    if (sale.frequency_type === "monthly") {
+      payment_occurrences = monthlyPayments(sale.payment_day, sale.frequency_amount);
+    } else {
+      payment_occurrences = weeklyPayments(sale.frequency_type, sale.payment_weekday, sale.frequency_amount);
+    }
+    
+    const payment_amount_per_occurrence = parseFloat(sale.price) / parseInt(sale.frequency_amount);
+    
+    const payment_data = payment_occurrences.map(payment_occurrence => ({
       id_sale: new_sale.id,
-      amount: payment.amount,
-      payment_date: payment.date
-  }));
-  
-  await prisma.payments.createMany({
-      data: payments_data
-  });
+      amount: payment_amount_per_occurrence,
+      payment_date: payment_occurrence,
+      paid: 0,
+      paid_amount: 0
+    }));
+    
 
-    return res.status(201).send({ new_sale, message: "Sale created" })
+    await prisma.payments.createMany({
+      data:payment_data
+    })
 
+    return res.status(201).send({ new_sale, message: "Sale created" });
   } catch (error) {
     console.log(error);
-    if (error.code === 'P2002' && error.meta.target === 'id_lot') {
-
-      return res.status(400).json({ error: "Duplicate entry for lot ID detected" });
+    if (error.code === "P2002" && error.meta.target === "id_lot") {
+      return res
+        .status(400)
+        .json({ error: "Duplicate entry for lot ID detected" });
     }
 
-    return res.status(500).send({ error: error.message })
+    return res.status(500).send({ error: error.message });
   }
 };
 
@@ -115,71 +126,73 @@ const destroy = async (req, res) => {
   return res.status(200).send({ message: "Sale deleted succesfully" });
 };
 
+function weeklyPayments(interval, dayOfWeek, occurrences) {
+  const millisecondsInWeek = 604800000; // Number of milliseconds in a week
+  const millisecondsInDay = 86400000; // Number of milliseconds in a day
 
-async function calculateFuturePayments(payment_day, payment_weekday, frequency_type, frequency_amount, total_amount) {
-  // Get today's date
-  let currentDate = new Date();
+  const dayMap = {
+      'sunday': 0,
+      'monday': 1,
+      'tuesday': 2,
+      'wednesday': 3,
+      'thursday': 4,
+      'friday': 5,
+      'saturday': 6
+  };
 
-  // Initialize variables for storing future payment dates and amounts
-  let futurePayments = [];
-  let paymentAmount = total_amount / frequency_amount;
+  const today = new Date();
+  const currentDay = today.getDay();
+  const targetDay = dayMap[dayOfWeek.toLowerCase()];
 
-  // Determine the interval for adding days/weeks/months
-  let interval = 1;
-  if (frequency_type === "biweekly") {
-      interval = 14; // 14 days in a biweekly interval
-  } else if (frequency_type === "monthly") {
-      interval = 30;
+  // Calculate the number of days until the next occurrence of the target day
+  let daysUntilTargetDay = (targetDay + 7 - currentDay) % 7;
+  if (daysUntilTargetDay === 0 && interval === 'biweekly') {
+      daysUntilTargetDay = 7; // If today is the payment day, and it's biweekly, set it to next week
   }
 
-  // Determine the starting day for the payment schedule
-  if (payment_day) {
-      // If payment_day is specified, set the date to that day
-      currentDate.setDate(payment_day);
-  } else if (payment_weekday) {
-      // If payment_weekday is specified, set the date to the next occurrence of that weekday
-      currentDate = getNextWeekday(currentDate, convertWeekdayToNumber(payment_weekday));
+  // Calculate the time until the next payment
+  let nextPaymentTime = today.getTime() + daysUntilTargetDay * millisecondsInDay;
+
+  // Calculate the interval between payments
+  const intervalInMilliseconds = (interval === 'biweekly') ? 2 * millisecondsInWeek : millisecondsInWeek;
+
+  const paymentDates = [];
+  for (let i = 0; i < occurrences; i++) {
+      paymentDates.push(nextPaymentTime);
+      nextPaymentTime += intervalInMilliseconds;
   }
 
-  // Loop to calculate future payment dates and amounts
-  for (let i = 0; i < frequency_amount; i++) {
-      // Create a new Date object for the next payment date
-      let nextPaymentDate = new Date(currentDate.getTime() + (interval * 24 * 60 * 60 * 1000 * i));
-
-      // Push the payment date and amount to the futurePayments array
-      futurePayments.push({ date: nextPaymentDate.getTime(), amount: paymentAmount });
-  }
-
-  return futurePayments;
+  return paymentDates;
 }
 
-// Function to get the next occurrence of a weekday
-function getNextWeekday(date, dayOfWeek) {
-  const daysToAdd = (dayOfWeek - date.getDay() + 7) % 7;
-  date.setDate(date.getDate() + daysToAdd);
-  return date;
-}
+function monthlyPayments(setDay, occurrences) {
+  const result = [];
+  const currentDate = new Date();
+  let currentYear = currentDate.getFullYear();
+  let currentMonth = currentDate.getMonth();
 
-function convertWeekdayToNumber(weekdayString) {
-  switch (weekdayString.toLowerCase()) {
-      case 'sunday':
-          return 0;
-      case 'monday':
-          return 1;
-      case 'tuesday':
-          return 2;
-      case 'wednesday':
-          return 3;
-      case 'thursday':
-          return 4;
-      case 'friday':
-          return 5;
-      case 'saturday':
-          return 6;
-      default:
-          return -1; // Return -1 for invalid input
+  for (let i = 0; i < occurrences; i++) {
+      let nextOccurrence = new Date(currentYear, currentMonth, setDay);
+
+      if (nextOccurrence.getMonth() !== currentMonth) {
+          // If set day doesn't exist in the current month, set to the last day of the month
+          nextOccurrence = new Date(currentYear, currentMonth + 1, 0);
+      }
+
+      result.push(nextOccurrence.getTime()); // Add the date in milliseconds to result array
+
+      // Move to the next month
+      if (currentMonth === 11) {
+          // If it's December, move to January of the next year
+          currentMonth = 0;
+          currentYear++;
+      } else {
+          // Otherwise, just move to the next month
+          currentMonth++;
+      }
   }
-}
 
+  return result;
+}
 
 module.exports.SalesController = { save, fetch, update, destroy }
