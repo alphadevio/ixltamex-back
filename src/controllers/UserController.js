@@ -5,36 +5,37 @@ const prisma = new PrismaClient();
   
 const save = async (req, res) => {
   const salt_rounds = 10;
-    try {
-      let payload = req.body;
-      let raw_password = req.body.password
-      const hashed = await bcrypt.genSalt(salt_rounds,raw_password)
-      payload.password = hashed
-      
-      const user = new User(payload);
+  try {
+    let payload = req.body;
+    let raw_password = req.body.password;
 
-      const repeated_email = await prisma.users.findFirst({
-        where:{
-          email:user.email,
-          deleted:0
-        }
-      })
-      
-      if (repeated_email) {
-        throw new Error("Existe una cuenta con ese correo");
+    const salt = await bcrypt.genSalt(salt_rounds);
+    const hashed = await bcrypt.hash(raw_password, salt);
+    payload.password = hashed;
+    
+    const user = new User(payload);
+
+    const repeated_email = await prisma.users.findFirst({
+      where:{
+        email:user.email,
+        deleted:0
       }
-      const new_user = await prisma.users.create({
-        data: user
-      });
-  
-      return res.status(200).send({ message: "Usuario agregado con éxito", result: new_user });
-  
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send({ message: "Error", error: error.message });
+    });
+    
+    if (repeated_email) {
+      throw new Error("Existe una cuenta con ese correo");
     }
+    const new_user = await prisma.users.create({
+      data: user
+    });
+
+    return res.status(200).send({ message: "Usuario agregado con éxito", result: new_user });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ message: "Error", error: error.message });
   }
-  
+}
   
   //(where, orderby, limit, offset)
   const fetch = async (req, res) => {
@@ -47,7 +48,14 @@ const save = async (req, res) => {
 
     try {
         result = await prisma.users.findMany({
-            where
+            where,
+            select:{
+              id:true,
+              name:true,
+              email:true,
+              phone_number:true,
+              profile_id:true
+            }
         });
     } catch (error) {
         console.log(error);
@@ -113,43 +121,46 @@ const save = async (req, res) => {
     return res.status(200).send({ message: "Usuario modificado exitosamente" });
   };
 
-  const login = async (req,res) =>{
-    const { email, password } = req.body
+  const login = async (req, res) => {
+    const { email, password } = req.body;
     try {
       let user = await prisma.users.findFirst({
-        select:{
-          id:true,
-          email:true,
-          profile_id:true,
-          profiles:true
+        select: {
+          id: true,
+          email: true,
+          profile_id: true,
+          profiles: true,
+          password: true // Include the password field in the query
         },
-        where:{
-          AND:[
+        where: {
+          AND: [
             {
-              email:email
+              email: email
             },
             {
-              password:password
-            },
-            {
-              deleted:0
+              deleted: 0
             }
           ]
         }
-      })
+      });
   
       if (user) {
-        return res.status(200).send({message:"Login correcto",user})
-      } else{
-        return res.status(403).send({message:"Login incorrecto"})
+        // Compare the hashed password from the database with the provided password
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (passwordMatch) {
+          delete user.password;
+          return res.status(200).send({ message: "Login correcto", user });
+        } else {
+          return res.status(403).send({ message: "Login incorrecto" });
+        }
+      } else {
+        return res.status(403).send({ message: "Login incorrecto" });
       }
     } catch (error) {
-      return res.send(500).status({error,message:"Internal server error"})
+      return res.status(500).send({ error, message: "Internal server error" });
     }
-
-
-  }
-
+  };
+  
   const forgot_password = (req,res) =>{
     const { password } = req.body
   }

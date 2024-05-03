@@ -73,6 +73,12 @@ const fetch = async (req,res) =>{
 
   const id = parseInt(req.query.id);
   const id_apple = parseInt(req.query.id_apple);
+  const sold = parseInt(req.query.sold); 
+
+  if (sold > 1 || sold < 0){
+    return res.status(404).send({message:"The sold parameter can't be greater than 1 or less than 0"})
+  }
+
 
   let where = {
     deleted: {
@@ -86,6 +92,10 @@ const fetch = async (req,res) =>{
     },
   };
 
+  const where_lots = { 
+      deleted: 0
+  }
+
   if (id) {
     where.id = id;
   }
@@ -94,6 +104,9 @@ const fetch = async (req,res) =>{
     where_apples.id = id_apple;
   }
 
+  if (sold > -1){
+    where_lots.sold = sold;
+  }
 
     const result = await prisma.developments.findMany({
       where,
@@ -117,11 +130,7 @@ const fetch = async (req,res) =>{
           where: where_apples,
           include: {
             lots: {
-              where: {
-                deleted: {
-                  not: 1,
-                },
-              },
+              where: where_lots,
             },
           },
         },

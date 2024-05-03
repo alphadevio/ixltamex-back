@@ -10,6 +10,15 @@ const save = async (req, res) => {
     const new_sale = await prisma.sales.create({
       data: sale,
     });
+
+    await prisma.lots.update({
+      data:{
+        sold:1
+      },
+      where:{
+        id:sale.id_lot
+      }
+    })
     
     let payment_occurrences;
     
