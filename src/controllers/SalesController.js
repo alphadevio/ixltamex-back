@@ -2,6 +2,10 @@ const { PrismaClient } = require("@prisma/client");
 const { Sale } = require("../models/Sale");
 const prisma = new PrismaClient();
 
+// Inside the functions
+const options = { timeZone: 'America/Mexico_City' }; // Mexico City Time
+
+
 const save = async (req, res) => {
   try {
     const payload = req.body;
@@ -149,9 +153,10 @@ function weeklyPayments(interval, dayOfWeek, occurrences) {
       'saturday': 6
   };
 
-  const today = new Date();
-  const currentDay = today.getDay();
-  const targetDay = dayMap[dayOfWeek.toLowerCase()];
+  const today = new Date().toLocaleString('en-US', options); // Get the current date and time in Mexico City timezone
+  const currentDay = new Date(today).getDay(); // Get the day of the week (0 for Sunday, 1 for Monday, etc.)
+  const targetDay = dayMap[currentDay.toLowerCase()]; // Assuming dayMap maps day indices to some values
+  
 
   // Calculate the number of days until the next occurrence of the target day
   let daysUntilTargetDay = (targetDay + 7 - currentDay) % 7;
@@ -176,9 +181,11 @@ function weeklyPayments(interval, dayOfWeek, occurrences) {
 
 function monthlyPayments(setDay, occurrences) {
   const result = [];
-  const currentDate = new Date();
-  let currentYear = currentDate.getFullYear();
-  let currentMonth = currentDate.getMonth();
+  const currentDate = new Date().toLocaleString('en-US', options);
+  const dateObject = new Date(currentDate);
+  let currentYear = dateObject.getFullYear();
+  let currentMonth = dateObject.getMonth();
+  
 
   for (let i = 0; i < occurrences; i++) {
       let nextOccurrence = new Date(currentYear, currentMonth, setDay);
