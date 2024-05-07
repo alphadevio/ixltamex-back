@@ -1,10 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const { Sale } = require("../models/Sale");
 const prisma = new PrismaClient();
-
-// Inside the functions
-const options = { timeZone: 'America/Mexico_City' }; // Mexico City Time
-
+const moment = require('moment-timezone');
 
 const save = async (req, res) => {
   try {
@@ -139,76 +136,71 @@ const destroy = async (req, res) => {
   return res.status(200).send({ message: "Sale deleted succesfully" });
 };
 
-function weeklyPayments(interval, dayOfWeek, occurrences) {
-  const millisecondsInWeek = 604800000; // Number of milliseconds in a week
-  const millisecondsInDay = 86400000; // Number of milliseconds in a day
+function weeklyPayments(interval, dayOfWeek, occurrences, timeZone='America/Mexico_City') {
+    const dayMap = {
+        'sunday': 0,
+        'monday': 1,
+        'tuesday': 2,
+        'wednesday': 3,
+        'thursday': 4,
+        'friday': 5,
+        'saturday': 6
+    };
 
-  const dayMap = {
-      'sunday': 0,
-      'monday': 1,
-      'tuesday': 2,
-      'wednesday': 3,
-      'thursday': 4,
-      'friday': 5,
-      'saturday': 6
-  };
+    const today = moment().tz(timeZone); // Get the current date and time in the specified time zone
+    const currentDay = today.day(); // Get the day of the week (0 for Sunday, 1 for Monday, etc.)
+    const targetDay = dayMap[dayOfWeek.toLowerCase()];
 
-  const today = new Date().toLocaleString('en-US', options); // Get the current date and time in Mexico City timezone
-  const currentDay = new Date(today).getDay(); // Get the day of the week (0 for Sunday, 1 for Monday, etc.)
-  const targetDay = dayMap[currentDay.toLowerCase()]; // Assuming dayMap maps day indices to some values
-  
+    // Calculate the number of days until the next occurrence of the target day
+    let daysUntilTargetDay = (targetDay + 7 - currentDay) % 7;
+    if (daysUntilTargetDay === 0 && interval === 'biweekly') {
+        daysUntilTargetDay = 7; // If today is the payment day, and it's biweekly, set it to next week
+    }
 
-  // Calculate the number of days until the next occurrence of the target day
-  let daysUntilTargetDay = (targetDay + 7 - currentDay) % 7;
-  if (daysUntilTargetDay === 0 && interval === 'biweekly') {
-      daysUntilTargetDay = 7; // If today is the payment day, and it's biweekly, set it to next week
-  }
+    // Calculate the time until the next payment
+    let nextPaymentTime = today.add(daysUntilTargetDay, 'days').valueOf();
 
-  // Calculate the time until the next payment
-  let nextPaymentTime = today.getTime() + daysUntilTargetDay * millisecondsInDay;
+    // Calculate the interval between payments
+    const intervalInMilliseconds = (interval === 'biweekly') ? 2 * 7 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
 
-  // Calculate the interval between payments
-  const intervalInMilliseconds = (interval === 'biweekly') ? 2 * millisecondsInWeek : millisecondsInWeek;
+    const paymentDates = [];
+    for (let i = 0; i < occurrences; i++) {
+        paymentDates.push(nextPaymentTime);
+        nextPaymentTime += intervalInMilliseconds;
+    }
 
-  const paymentDates = [];
-  for (let i = 0; i < occurrences; i++) {
-      paymentDates.push(nextPaymentTime);
-      nextPaymentTime += intervalInMilliseconds;
-  }
-
-  return paymentDates;
+    return paymentDates;
 }
 
-function monthlyPayments(setDay, occurrences) {
-  const result = [];
-  const currentDate = new Date().toLocaleString('en-US', options);
-  const dateObject = new Date(currentDate);
-  let currentYear = dateObject.getFullYear();
-  let currentMonth = dateObject.getMonth();
-  
+function monthlyPayments(setDay, occurrences, timeZone='America/Mexico_City') {
+    const result = [];
+    let currentDate = moment().tz(timeZone);
+    let currentYear = currentDate.year();
+    let currentMonth = currentDate.month();
 
-  for (let i = 0; i < occurrences; i++) {
-      let nextOccurrence = new Date(currentYear, currentMonth, setDay);
+    for (let i = 0; i < occurrences; i++) {
+        let nextOccurrence = moment.tz([currentYear, currentMonth, setDay], timeZone);
 
-      if (nextOccurrence.getMonth() !== currentMonth) {
-          // If set day doesn't exist in the current month, set to the last day of the month
-          nextOccurrence = new Date(currentYear, currentMonth + 1, 0);
-      }
+        if (nextOccurrence.month() !== currentMonth) {
+            // If set day doesn't exist in the current month, set to the last day of the month
+            nextOccurrence = moment.tz([currentYear, currentMonth + 1, 0], timeZone);
+        }
 
-      result.push(nextOccurrence.getTime()); // Add the date in milliseconds to result array
+        result.push(nextOccurrence.valueOf()); // Add the date in milliseconds to result array
 
-      // Move to the next month
-      if (currentMonth === 11) {
-          // If it's December, move to January of the next year
-          currentMonth = 0;
-          currentYear++;
-      } else {
-          // Otherwise, just move to the next month
-          currentMonth++;
-      }
-  }
+        // Move to the next month
+        if (currentMonth === 11) {
+            // If it's December, move to January of the next year
+            currentMonth = 0;
+            currentYear++;
+        } else {
+            // Otherwise, just move to the next month
+            currentMonth++;
+        }
+    }
 
-  return result;
+    return result;
 }
+
 
 module.exports.SalesController = { save, fetch, update, destroy }
