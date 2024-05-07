@@ -35,6 +35,13 @@ const pay = async (req, res) => {
             }
         });
 
+        await prisma.transactions.create({
+            data:{
+                amount: parseFloat(paid_amount),
+                id_payment: new_payment.id
+            }
+        })
+
         if (parseFloat(new_payment.paid_amount) >= parseFloat(new_payment.amount)){
             await prisma.payments.update({
                 data: {
