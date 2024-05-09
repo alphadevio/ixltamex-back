@@ -37,7 +37,7 @@ const pay = async (req, res) => {
 
         await prisma.transactions.create({
             data:{
-                amount: parseFloat(paid_amount),
+                amount: parseFloat(paid_amount) || parseFloat(new_paid_amount),
                 id_payment: new_payment.id
             }
         })

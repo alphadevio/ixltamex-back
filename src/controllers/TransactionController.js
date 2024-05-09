@@ -1,12 +1,41 @@
 const { PrismaClient } = require("@prisma/client");
+const db = require("../database/knex");
 const prisma = new PrismaClient();
 
-const fetch = async (req,res) =>{
+const fetch = async (req, res) => {
+    const id_lot = req.query.id_lot;
 
-    const result = await prisma.transactions.findMany()
+    let query = db('transactions')
+        .select(
+            'transactions.id',
+            'transactions.amount',
+            'transactions.created_at',
+            'transactions.refunded',
+            'transactions.id_payment',
+            'lots.id as lot_id',
+            'lots.id_apple',
+            'lots.lot_number',
+            'lots.area',
+            'lots.top_width',
+            'lots.bottom_width',
+            'lots.right_length',
+            'lots.left_length',
+            'lots.deleted',
+            'lots.sold'
+        )
+        .leftJoin('payments', 'transactions.id_payment', 'payments.id')
+        .leftJoin('sales', 'payments.id_sale', 'sales.id')
+        .leftJoin('lots', 'sales.id_lot', 'lots.id');
 
-    res.status(200).send({result})
-}
+    if (id_lot) {
+        query = query.where('lots.id', parseInt(id_lot));
+    }
+
+    const result = await query;
+
+    res.status(200).send({ result });
+};
+
 
 const refund = async (req, res) => {
     const ID = req.params.id;
