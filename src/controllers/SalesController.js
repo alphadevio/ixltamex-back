@@ -61,8 +61,8 @@ const fetch = async (req, res) => {
   try {
     const result = await prisma.sales.findMany({
       include: {
-        lots: true,
-        clients: true,
+        lots:true,
+        clients:true,
         payments:true
       },
       where: {
