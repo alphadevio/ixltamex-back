@@ -68,7 +68,8 @@ const refund = async (req, res) => {
                 id: parseInt(refunded_transaction.id_payment)
             },
             data: {
-                paid_amount: updated_payment_amount
+                paid_amount: updated_payment_amount,
+                paid: updated_payment_amount < parseFloat(modified_payment.amount) ? 0 : modified_payment.paid
             }
         });
 
