@@ -29,7 +29,8 @@ const save = async (req, res) => {
       payment_occurrences = weeklyPayments(sale.frequency_type, sale.payment_weekday, sale.frequency_amount);
     }
     
-    const payment_amount_per_occurrence = parseFloat(sale.price) / parseInt(sale.frequency_amount);
+    const amount_to_pay_after_first_payment = parseFloat(sale.price) - parseFloat(sale.first_payment)
+    const payment_amount_per_occurrence = parseFloat(amount_to_pay_after_first_payment) / parseInt(sale.frequency_amount);
     
     const payment_data = payment_occurrences.map(payment_occurrence => ({
       id_sale: new_sale.id,

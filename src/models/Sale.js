@@ -11,6 +11,7 @@ class Sale{
         this.payment_weekday = payload.payment_weekday || null
         this.frequency_type = payload.frequency_type
         this.frequency_amount = payload.frequency_amount
+        this.first_payment = payload.first_payment || 0
     }
 }
 
