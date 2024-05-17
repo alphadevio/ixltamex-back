@@ -60,20 +60,26 @@ const save = async (req, res) => {
 
 const fetch = async (req, res) => {
   try {
+    const { id_cliente } = req.query;
+
+    const whereCondition = {
+      deleted: {
+        not: 1
+      }
+    };
+
+    if (id_cliente) {
+      whereCondition.id_client = parseInt(id_cliente);
+    }
     const result = await prisma.sales.findMany({
       include: {
         lots:true,
         clients:true,
         payments:true
       },
-      where: {
-        deleted: {
-          not: 1
-        }
-      }
+      where: whereCondition
     })
-
-    
+  
     result.forEach(sale => {
       let totalAmount = 0;
       sale.payments.forEach(payment => {

@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 const fetch = async (req, res) => {
     const id_lot = req.query.id_lot;
+    const id_client = req.query.id_client;
 
     let query = db('transactions')
         .select(
@@ -31,9 +32,17 @@ const fetch = async (req, res) => {
         query = query.where('lots.id', parseInt(id_lot));
     }
 
-    const result = await query;
+    if (id_client) {
+        query = query.where('sales.id_client', parseInt(id_client));
+    }
 
-    res.status(200).send({ result });
+    try {
+        const result = await query;
+        res.status(200).send({ result });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'An error occurred while fetching transactions' });
+    }
 };
 
 
