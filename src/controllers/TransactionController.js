@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 const fetch = async (req, res) => {
     const id_lot = req.query.id_lot;
-    const id_client = req.query.id_client;
+    const id_client = req.query.id_cliente;
 
     let query = db('transactions')
         .select(
