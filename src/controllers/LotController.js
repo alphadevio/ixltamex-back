@@ -55,7 +55,8 @@ const fetch = async (req,res) =>{
         include:{
             sales:{
                 include:{
-                    clients:true
+                    clients:true,
+                    payments:true
                 }
             },
             apples:{
