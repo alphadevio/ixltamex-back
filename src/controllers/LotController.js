@@ -57,6 +57,11 @@ const fetch = async (req,res) =>{
                 include:{
                     clients:true
                 }
+            },
+            apples:{
+                include:{
+                    developments:true
+                }
             }
         }
     })
