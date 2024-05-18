@@ -22,11 +22,15 @@ const fetch = async (req, res) => {
             'lots.right_length',
             'lots.left_length',
             'lots.deleted',
-            'lots.sold'
+            'lots.sold',
+            'developments.name'
+
         )
         .leftJoin('payments', 'transactions.id_payment', 'payments.id')
         .leftJoin('sales', 'payments.id_sale', 'sales.id')
-        .leftJoin('lots', 'sales.id_lot', 'lots.id');
+        .leftJoin('lots', 'sales.id_lot', 'lots.id')
+        .leftJoin('apples', 'lots.id_apple', 'apples.id')
+        .leftJoin('developments', 'apples.id_development', 'developments.id');
 
     if (id_lot) {
         query = query.where('lots.id', parseInt(id_lot));
