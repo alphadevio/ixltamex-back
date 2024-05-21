@@ -69,7 +69,7 @@ const generate = async (req,res) => {
 
     pdf.create(content).toFile(`./public/pdf/${dateName.toString()}.pdf`, function(err, result) {
       if (err){
-        res.status(500).send({message:'Error al generar el pdf', error:content})
+        res.status(500).send({message:'Error al generar el pdf', error:err.message || err})
       } else {
         res.status(200).send({message:'Exito', result: {qrURL: qrDirection}})
       }
