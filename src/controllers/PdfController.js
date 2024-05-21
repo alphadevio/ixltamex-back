@@ -60,11 +60,10 @@ const generate = async (req,res) => {
       <p style="font-size:15px; padding:0; margin:1px">Pago realizado por el lote no. ${pago.sales.lots.lot_number}</p>
       <p style="font-size:15px; padding:0; margin:1px">Abonado:         <strong>${abonado}</strong></p>
       <p style="font-size:15px; padding:0; margin:1px">Total del pago:  <strong>${total}</strong></p>
-      <p style="font-size:15px; padding:0; margin:1px">Cantidad debuda: <strong>${remanente}</strong></p>
+      <p style="font-size:15px; padding:0; margin:1px">Cantidad debida: <strong>${remanente}</strong></p>
       <p style="font-size:15px; padding:0; margin:1px; margin-top:20px">Usuario: <strong>${pago.sales.clients.name}</strong></p>
     </div>
 
-    <img src="${qrDirection}" alt="Qr-image" style="width:120px; height:120px; margin-top:20px;"/>
     `;
 
     pdf.create(content).toFile(`./public/pdf/${dateName.toString()}.pdf`, function(err, result) {
