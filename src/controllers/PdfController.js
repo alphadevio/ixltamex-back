@@ -1,5 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
-const pdf = require('html-pdf'); 
+const puppeteer = require('puppeteer');
 const prisma = new PrismaClient();
 const QRCode = require('qrcode');
 require('dotenv').config();
@@ -67,13 +67,13 @@ const generate = async (req,res) => {
     <img src="${qrDirection}" alt="Qr-image" style="width:120px; height:120px; margin-top:20px;"/>
     `;
 
-    pdf.create(content).toFile(`./public/pdf/${dateName.toString()}.pdf`, function(err, result) {
-      if (err){
-        res.status(500).send({message:'Error al generar el pdf', error:err.message || err})
-      } else {
-        res.status(200).send({message:'Exito', result: {qrURL: qrDirection}})
-      }
-    });
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(content, { waitUntil: 'networkidle0' });
+    await page.pdf({ path: `./public/pdf/${dateName.toString()}.pdf`, format: 'A4' });
+    await browser.close();
+
+    res.status(200).send({ message: 'Exito', result: { qrURL: qrDirection } });
   } catch (error) {
     res.status(500).send({message:'Error al generar el pdf'})
   }
