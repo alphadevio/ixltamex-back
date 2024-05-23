@@ -5,6 +5,10 @@ const pay = async (req, res) => {
     try {
         const id_payment = req.body.id_payment;
         const paid_amount = parseFloat(req.body.paid_amount);
+        const payment_type = req.body.payment_type;
+
+        if(payment_type !== 'efectivo' && payment_type !== 'transferencia' && payment_type !== 'cheque' && payment_type !== 'otro')
+            return res.status(402).json({ error: "payment_type_error.", message: `El método de pago no es válido. Método especificado: ${payment_type}` });
 
         const payment = await prisma.payments.findUnique({
             where:{
@@ -38,7 +42,8 @@ const pay = async (req, res) => {
         await prisma.transactions.create({
             data:{
                 amount: parseFloat(paid_amount) || parseFloat(new_paid_amount),
-                id_payment: new_payment.id
+                id_payment: new_payment.id,
+                payment_type: payment_type
             }
         })
 
