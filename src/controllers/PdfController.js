@@ -75,7 +75,7 @@ const generate = async (req,res) => {
 
     res.status(200).send({ message: 'Exito', result: { qrURL: qrDirection } });
   } catch (error) {
-    res.status(500).send({message:'Error al generar el pdf'})
+    res.status(500).send({message:'Error al generar el pdf', error:err.message || err})
   }
     
 }
