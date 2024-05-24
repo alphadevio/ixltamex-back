@@ -74,6 +74,11 @@ const fetch = async (req,res) =>{
   const id = parseInt(req.query.id);
   const id_apple = parseInt(req.query.id_apple);
   const sold = parseInt(req.query.sold); 
+  let offset = parseInt(req.query.offset)
+
+  if(!offset){
+    offset = 0
+  }
 
   if (sold > 1 || sold < 0){
     return res.status(404).send({message:"The sold parameter can't be greater than 1 or less than 0"})
@@ -135,6 +140,8 @@ const fetch = async (req,res) =>{
           },
         },
       },
+      skip:offset,
+      take:10
     });
 
     if (result.length === 0) {

@@ -45,6 +45,11 @@ const save = async (req, res) => {
             not: 1
         }
     };
+    let offset = parseInt(req.query.offset)
+
+    if(!offset){
+      offset = 0
+    }
 
     try {
         result = await prisma.users.findMany({
@@ -55,7 +60,10 @@ const save = async (req, res) => {
               email:true,
               phone_number:true,
               profile_id:true
-            }
+            },
+            skip:offset,
+            take:10
+
         });
     } catch (error) {
         console.log(error);

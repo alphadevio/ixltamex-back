@@ -18,25 +18,35 @@ const save = async (req,res) =>{
 }
 
 const fetch = async (req,res) =>{
+  let offset = parseInt(req.query.offset)
 
-    const id = req.body.id
-    let where = {
-        deleted:{
-            not:1
-        }
-    }
+  if(!offset){
+    offset = 0
+  }
 
-    if (id) {
-        where.id = id
-    }
+  const id = req.body.id
+  let where = {
+      deleted:{
+          not:1
+      }
+  }
 
-    const result = await prisma.apples.findMany({where,include:{lots:true, developments:true}})
+  if (id) {
+      where.id = id
+  }
 
-    if (result.length === 0) {
-        return res.status(404).send({message:"Empty"})
-    }
+  const result = await prisma.apples.findMany({
+    where,
+    include:{lots:true, developments:true},
+    skip:offset,
+    take:10
+  })
 
-    return res.status(200).send({result})
+  if (result.length === 0) {
+      return res.status(404).send({message:"Empty"})
+  }
+
+  return res.status(200).send({result})
 }
 
 const update = async (req, res) => {

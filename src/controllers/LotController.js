@@ -46,6 +46,11 @@ const fetch = async (req,res) =>{
             not:1
         }
     }
+    let offset = parseInt(req.query.offset)
+
+    if(!offset){
+        offset = 0
+    }
 
     if (id) {
         where.id = id
@@ -64,7 +69,9 @@ const fetch = async (req,res) =>{
                     developments:true
                 }
             }
-        }
+        },
+        skip:offset,
+        take:10
     })
 
     if (result.length === 0) {

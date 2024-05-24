@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 const fetch = async (req, res) => {
     const id_lot = req.query.id_lot;
     const id_client = req.query.id_cliente;
+    const offset = parseInt(req.query.offset)
 
     let query = db('transactions')
         .select(
@@ -39,6 +40,12 @@ const fetch = async (req, res) => {
     if (id_client) {
         query = query.where('sales.id_client', parseInt(id_client));
     }
+
+    if (offset) {
+        query = query.offset(offset)
+    }
+
+    query = query.limit(10)
 
     try {
         const result = await query;

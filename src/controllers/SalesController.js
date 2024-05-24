@@ -61,6 +61,12 @@ const save = async (req, res) => {
 const fetch = async (req, res) => {
   try {
     const { id_cliente } = req.query;
+    let offset = parseInt(req.query.offset)
+
+    if(!offset){
+      offset = 0
+    }
+    console.log(offset)
 
     const whereCondition = {
       deleted: {
@@ -77,7 +83,9 @@ const fetch = async (req, res) => {
         clients:true,
         payments:true
       },
-      where: whereCondition
+      where: whereCondition,
+      skip:offset,
+      take:10
     })
   
     result.forEach(sale => {

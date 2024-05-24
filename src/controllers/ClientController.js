@@ -23,9 +23,18 @@ const save = async (req,res) =>{
 }
 
 const fetch = async (req,res) =>{
+  let offset = parseInt(req.query.offset)
+
+  if(!offset){
+    offset = 0
+  }
 
     let where = {deleted:{not:1}}
-    const result = await prisma.clients.findMany({where})
+    const result = await prisma.clients.findMany({
+      where,
+      skip:offset,
+      take:10
+    })
 
     if (result.length === 0) {
         return res.status(404).send({message:"Empty"})
