@@ -98,7 +98,9 @@ const generate = async (req,res) => {
       </div>
 
       <div style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; height: 190px; background-color: #fff2bd; border-top-style: solid; border-top-width: 1px; border-color: #0f0f0f; border-bottom-style: solid; border-bottom-width: 1px;">
-        <div style="flex: 1; border-bottom-width: 1px; border-bottom-style: solid; border-color: #0f0f0f; width: 100%;"></div>
+        <div style="flex: 1; border-bottom-width: 1px; border-bottom-style: solid; border-color: #0f0f0f; width: 100%; display:flex; align-items:end">
+          <span>Pago del lote ${pago.payments.sales.lots.lot_number} del recibo ${pago.payments.id}</span>
+        </div>
         <div style="flex: 1;"></div>
       </div>
 
