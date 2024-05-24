@@ -99,7 +99,7 @@ const generate = async (req,res) => {
 
       <div style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; height: 190px; background-color: #fff2bd; border-top-style: solid; border-top-width: 1px; border-color: #0f0f0f; border-bottom-style: solid; border-bottom-width: 1px;">
         <div style="flex: 1; border-bottom-width: 1px; border-bottom-style: solid; border-color: #0f0f0f; width: 100%; display:flex; align-items:end">
-          <span>Pago del lote ${pago.payments.sales.lots.lot_number} del recibo ${pago.payments.id}</span>
+          <span>Pago del lote ${pago.payments.sales.lots.lot_number} del recibo ${pago.id}</span>
         </div>
         <div style="flex: 1;"></div>
       </div>
@@ -141,7 +141,7 @@ const generate = async (req,res) => {
     await page.pdf({ path: `./public/pdf/${dateName.toString()}.pdf`, format: 'A4', printBackground: true });
     await browser.close();
 
-    res.status(200).send({ message: 'Exito', result: { qrURL: qrDirection } });
+    res.status(200).send({ message: 'Exito', result: { pdfUrl: data } });
   } catch (error) {
     res.status(500).send({message:'Error al generar el pdf', error:error.message || error})
   }
