@@ -81,7 +81,7 @@ const fetch = async (req,res) =>{
     const count = await prisma.lots.count({where:{deleted:{not:1}}})
 
 
-    return res.status(200).send({result, lots})
+    return res.status(200).send({result, count})
 }
 
 const update = async (req,res) =>{
