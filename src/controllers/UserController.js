@@ -70,7 +70,9 @@ const save = async (req, res) => {
         return res.status(500).send({ error: "Internal Server Error" });
     }
 
-    return res.status(200).send({ result });
+    const count = await prisma.users.count({where:{deleted:{not:1}}})
+
+    return res.status(200).send({ result, count });
 };
 
   

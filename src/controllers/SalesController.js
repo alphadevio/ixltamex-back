@@ -97,8 +97,10 @@ const fetch = async (req, res) => {
   
       sale.remaining = sale.total_amount - parseFloat(sale.paid);
     });
+
+    const count = await prisma.sales.count({where:{deleted:{not:1}}})
   
-    return res.status(200).send({ result })
+    return res.status(200).send({ result, count })
   } catch (error) {
     console.log(error)
   }

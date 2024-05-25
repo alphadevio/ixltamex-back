@@ -40,11 +40,13 @@ const fetch = async (req,res) =>{
         return res.status(404).send({message:"Empty"})
     }
 
+    const count = await prisma.clients.count({where:{deleted:{not:1}}})
+
     result.forEach(client => {
       client.url = "https://api.ixtlamex.alphadev.io/public/" + client.id_file_name
     });
 
-    return res.status(200).send({result})
+    return res.status(200).send({result, count})
 }
 
 const update = async (req,res) =>{
