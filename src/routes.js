@@ -9,11 +9,12 @@ const { PeriodsRoutes } = require('./routes/PeriodsRoutes');
 const { PaymentRoutes } = require('./routes/PaymentRoutes');
 const { TransactionRoutes } = require('./routes/TransactionRoute');
 const { PdfRoutes } = require('./routes/PdfRoutes')
+const { AssetRoutes } = require('./routes/AssetRoutes')
+const { AccountStateRoutes } = require('./routes/AccountStateRoutes')
 
 const { Router } = require("express");
 const router = Router()
 
-//
 router.use('/user',UserRouter)
 router.use('/development',DevelopmentRouter)
 router.use('/percentage',PercentageRouter)
@@ -25,6 +26,7 @@ router.use('/period',PeriodsRoutes)
 router.use('/payment',PaymentRoutes)
 router.use('/transaction',TransactionRoutes)
 router.use('/pdf', PdfRoutes)
-
+router.use('/asset', AssetRoutes)
+router.use('/account-state', AccountStateRoutes)
 
 module.exports = router;

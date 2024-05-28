@@ -52,11 +52,12 @@ model percentages {
 }
 
 model clients {
-  id           Int     @id @default(autoincrement())
-  name         String? @db.VarChar(100)
-  phone_number String? @db.VarChar(13)
-  id_file_name String? @db.VarChar(50)
-  deleted      Int?    @default(0)
+  id           Int            @id @default(autoincrement())
+  name         String?        @db.VarChar(100)
+  phone_number String?        @db.VarChar(13)
+  id_file_name String?        @db.VarChar(50)
+  deleted      Int?           @default(0)
+  assets_users assets_users[]
   sales        sales[]
 }
 
@@ -73,7 +74,7 @@ model apples {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model lots {
-  id           Int     @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   id_apple     Int?
   lot_number   Int?
   area         Float
@@ -81,9 +82,10 @@ model lots {
   bottom_width Float
   right_length Float
   left_length  Float
-  deleted      Int?    @default(0)
-  sold         Int?    @default(0)
-  apples       apples? @relation(fields: [id_apple], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lots_ibfk_1")
+  deleted      Int?           @default(0)
+  sold         Int?           @default(0)
+  assets_users assets_users[]
+  apples       apples?        @relation(fields: [id_apple], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lots_ibfk_1")
   sales        sales?
 
   @@index([id_apple], map: "id_apple")
@@ -133,4 +135,18 @@ model transactions {
   payments   payments @relation(fields: [id_payment], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "id_payment")
 
   @@index([id_payment], map: "id_payment")
+}
+
+model assets_users {
+  id          Int      @id @default(autoincrement())
+  description String?  @db.VarChar(250)
+  valor       Decimal? @db.Decimal(10, 0)
+  status      Int?
+  id_client   Int?
+  id_lot      Int?
+  clients     clients? @relation(fields: [id_client], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "assets_users_ibfk_1")
+  lots        lots?    @relation(fields: [id_lot], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "assets_users_ibfk_2")
+
+  @@index([id_client], map: "id_client")
+  @@index([id_lot], map: "id_lot")
 }
