@@ -42,6 +42,14 @@ const save = async (req, res) => {
       }
     })
 
+    await prisma.sales.update({
+      data: {
+        paid: sale.first_payment
+      }, where: {
+        id: new_sale.id
+      }
+    })
+
     await prisma.transactions.create({
       data:{
         amount: parseFloat(sale.first_payment),
