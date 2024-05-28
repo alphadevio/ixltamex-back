@@ -19,39 +19,19 @@ const fetch = async (req,res) =>{
   }
 
   if(id_client === 0){
-    const result = await prisma.transactions.findMany({
-      skip:offset,
-      take:10,
-      include: {
-        payments:{
+    const result = await prisma.lots.findMany({
+      where:{
+        id: id_lot
+      }, include: {
+        sales:{
           include:{
-            sales:{
+            payments:{
               include:{
-                clients:true,
-                lots:{
-                  include:{
-                    apples:true
-                  }
-                }
+                transactions:true
               }
-            }
+            }, clients:true
           }
-        }
-      },
-      where: {
-        payments: {
-          is: {
-            sales: {
-              is: {
-                lots: {
-                  is: {
-                    id: id_lot 
-                  }
-                }
-              }
-            }
-          }
-        }
+        }, apples: true
       }
     })
 
@@ -62,31 +42,23 @@ const fetch = async (req,res) =>{
     const count = await prisma.transactions.count()
     return res.status(200).send({result, count})
   } else if( id_lot === 0 ) {
-    const result = await prisma.transactions.findMany({
-      skip:offset,
-      take:10,
-      include: {
-        payments:{
+    const result = await prisma.lots.findMany({
+      where:{
+        sales:{
+          clients:{
+            id:id_client
+          }
+        }
+      }, include: {
+        sales:{
           include:{
-            sales:{
+            payments:{
               include:{
-                clients:true,
-                lots:{
-                  include:{
-                    apples:true
-                  }
-                }
+                transactions:true
               }
-            }
+            }, clients:true
           }
-        }
-      },
-      where: {
-        payments: {
-          sales:{
-            id_client:id_client
-          }
-        }
+        }, apples: true
       }
     })
 
@@ -99,8 +71,68 @@ const fetch = async (req,res) =>{
   } else {
     return res.status(403).send({message:'Specify either id_lot or id_user'})
   }
+}
 
+const pdfmake = async (req, res) => {
+  let id_client = parseInt(req.query.id_client)
+  let id_lot = parseInt(req.query.id_lot)
+
+  if(!id_lot){
+    id_lot = 0
+  }
+
+  if(!id_client){
+    id_client = 0
+  }
+
+  let result = []
+
+  try{
+    if(id_client === 0){
+      result = await prisma.lots.findMany({
+        where:{
+          id: id_lot
+        }, include: {
+          sales:{
+            include:{
+              payments:{
+                include:{
+                  transactions:true
+                }
+              }, clients:true
+            }
+          }, apples: true
+        }
+      })
+    } else if( id_lot === 0 ) {
+      result = await prisma.lots.findMany({
+        where:{
+          sales:{
+            clients:{
+              id:id_client
+            }
+          }
+        }, include: {
+          sales:{
+            include:{
+              payments:{
+                include:{
+                  transactions:true
+                }
+              }, clients:true
+            }
+          }, apples: true
+        }
+      })
+    } else {
+      return res.status(403).send({message:'Specify either id_lot or id_user'})
+    }
+
+    return res.status(200).send({message:'Account state fetched successfully',result})
+  } catch (error) {
+    return res.status(500).send({message:'Internal server error', error:error.message})
+  }
   
 }
 
-module.exports.AccountState = {fetch}
+module.exports.AccountState = {fetch, pdfmake}
