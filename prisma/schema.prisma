@@ -17,6 +17,8 @@ model users {
   profile_id   Int           @default(2)
   percentages  percentages[]
   profiles     profiles      @relation(fields: [profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "profile_id")
+  spendings    spendings[]
+
 
   @@index([id], map: "ix_users_id")
   @@index([profile_id], map: "profile_id_idx")
@@ -36,6 +38,7 @@ model developments {
   deleted     Int?          @default(0)
   apples      apples[]
   percentages percentages[]
+  spendings   spendings[]
 }
 
 model percentages {
@@ -149,4 +152,16 @@ model assets_users {
 
   @@index([id_client], map: "id_client")
   @@index([id_lot], map: "id_lot")
+}
+
+model spendings {
+  id             Int      @id @default(autoincrement())
+  id_user        Int
+  id_development Int
+  ammount        Decimal  @db.Decimal(10, 2)
+  date           Decimal  @db.Decimal(13, 0) @default(0)
+  deleted        Int  @default(0)
+
+  user           users      @relation(fields: [id_user], references: [id])
+  development    developments @relation(fields: [id_development], references: [id])
 }

@@ -11,6 +11,7 @@ const { TransactionRoutes } = require('./routes/TransactionRoute');
 const { PdfRoutes } = require('./routes/PdfRoutes')
 const { AssetRoutes } = require('./routes/AssetRoutes')
 const { AccountStateRoutes } = require('./routes/AccountStateRoutes')
+const { SpendingsRoutes } = require('./routes/SpendingsRoutes')
 
 const { Router } = require("express");
 const router = Router()
@@ -28,5 +29,6 @@ router.use('/transaction',TransactionRoutes)
 router.use('/pdf', PdfRoutes)
 router.use('/asset', AssetRoutes)
 router.use('/account-state', AccountStateRoutes)
+router.use('/spendings', SpendingsRoutes)
 
 module.exports = router;
