@@ -31,6 +31,24 @@ const save = async (req, res) => {
     
     const amount_to_pay_after_first_payment = parseFloat(sale.price) - parseFloat(sale.first_payment)
     const payment_amount_per_occurrence = parseFloat(amount_to_pay_after_first_payment) / parseInt(sale.frequency_amount);
+
+    const first_ever_payment = await prisma.payments.create({
+      data: {
+        id_sale: new_sale.id,
+        amount: sale.first_payment,
+        payment_date: Date.now(),
+        paid: 1,
+        paid_amount: sale.first_payment
+      }
+    })
+
+    await prisma.transactions.create({
+      data:{
+        amount: parseFloat(sale.first_payment),
+        id_payment: first_ever_payment.id,
+        payment_type: 'otro'
+      }
+    })
     
     const payment_data = payment_occurrences.map(payment_occurrence => ({
       id_sale: new_sale.id,

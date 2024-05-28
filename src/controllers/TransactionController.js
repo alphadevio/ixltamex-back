@@ -49,7 +49,8 @@ const fetch = async (req, res) => {
 
     try {
         const result = await query;
-        res.status(200).send({ result });
+        const count = query.length + 1
+        res.status(200).send({ result, count });
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'An error occurred while fetching transactions' });

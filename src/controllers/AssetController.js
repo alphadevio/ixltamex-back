@@ -20,12 +20,18 @@ const save = async (req,res) =>{
 
 const fetch = async (req,res) =>{
   let offset = parseInt(req.query.offset)
+  let id_client = parseInt(req.query.id_client)
 
   if(!offset){
     offset = 0
   }
 
   let where = {status:{not:2}}
+
+  if(id_client){
+    where.id_client = id_client
+  }
+
   const result = await prisma.assets_users.findMany({
     where,
     skip:offset,
@@ -48,14 +54,14 @@ const fetch = async (req,res) =>{
       return res.status(404).send({message:"Empty"})
   }
 
-  const count = await prisma.clients.count({where:{deleted:{not:1}}})
+  const count = await prisma.assets_users.count({where})
   return res.status(200).send({result, count})
 }
 
 const update = async (req,res) =>{
   let payload = req.body;
-  let asset_id = parseInt(req.params.id)
 
+  const idsToUpdate = req.body.id_array
   const asset = new Asset(payload);
 
   let data = {};
@@ -80,14 +86,20 @@ const update = async (req,res) =>{
     data.id_lot = asset.id_lot;
   }
 
-  const updated_asset = await prisma.assets_users.update({
+  let response = []
+
+  for( id in idsToUpdate){
+    const updated_asset = await prisma.assets_users.update({
       where: {
-        id: asset_id,
+        id: parseInt(idsToUpdate[id]),
       },
       data: data,
     });
+
+    response.push( updated_asset )
+  }
   
-  return res.status(200).send({ message: "Asset succesfully modified", result:updated_asset});
+  return res.status(200).send({ message: "Asset succesfully modified", result:response});
 
 }
 

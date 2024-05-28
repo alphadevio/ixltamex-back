@@ -6,7 +6,7 @@ const AssetRoutes = express.Router()
 
 AssetRoutes.get('/',AssetController.fetch)
 AssetRoutes.post('/',AssetController.save)
-AssetRoutes.put('/:id',AssetController.update)
+AssetRoutes.put('/',AssetController.update)
 AssetRoutes.delete('/:id',AssetController.destroy)
 
 module.exports.AssetRoutes = AssetRoutes
