@@ -5,9 +5,9 @@ const prisma = new PrismaClient();
 const fetch = async (req, res) => {
     const id_lot = req.query.id_lot;
     const id_client = req.query.id_cliente;
-    const offset = parseInt(req.query.offset)
+    const offset = parseInt(req.query.offset);
 
-    let query = db('transactions')
+    let baseQuery = db('transactions')
         .select(
             'transactions.id',
             'transactions.amount',
@@ -25,7 +25,6 @@ const fetch = async (req, res) => {
             'lots.deleted',
             'lots.sold',
             'developments.name'
-
         )
         .leftJoin('payments', 'transactions.id_payment', 'payments.id')
         .leftJoin('sales', 'payments.id_sale', 'sales.id')
@@ -34,22 +33,30 @@ const fetch = async (req, res) => {
         .leftJoin('developments', 'apples.id_development', 'developments.id');
 
     if (id_lot) {
-        query = query.where('lots.id', parseInt(id_lot));
+        baseQuery = baseQuery.where('lots.id', parseInt(id_lot));
     }
 
     if (id_client) {
-        query = query.where('sales.id_client', parseInt(id_client));
+        baseQuery = baseQuery.where('sales.id_client', parseInt(id_client));
     }
+
+    // Clonar la consulta base para el conteo total
+    let countQuery = baseQuery.clone().count('* as count');
 
     if (offset) {
-        query = query.offset(offset)
+        baseQuery = baseQuery.offset(offset);
     }
 
-    query = query.limit(10)
+    baseQuery = baseQuery.limit(10);
 
     try {
-        const result = await query;
-        const count = query.length + 1
+        const [result, countResult] = await Promise.all([
+            baseQuery,
+            countQuery
+        ]);
+
+        const count = countResult[0].count;
+
         res.status(200).send({ result, count });
     } catch (error) {
         console.error(error);
