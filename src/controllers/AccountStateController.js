@@ -175,7 +175,11 @@ const pdfmake = async (req, res) => {
           <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;"></td>
         </tr>
         `
-        paid += parseFloat(result[i].sales.payments[j].paid_amount)
+        if(result[i].sales.payments[j].transactions[k].refunded === 1){
+          paid -= parseFloat(result[i].sales.payments[j].paid_amount)
+        } else {
+          paid += parseFloat(result[i].sales.payments[j].paid_amount)
+        }
         total += parseFloat(result[i].sales.payments[j].amount)
 
         for(k in result[i].sales.payments[j].transactions){
