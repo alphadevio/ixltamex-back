@@ -23,7 +23,15 @@ const fetch = async (req,res) =>{
   if(id_client === 0){
     const result = await prisma.lots.findMany({
       where:{
-        id: id_lot
+        id: id_lot,
+        sales:{
+          deleted:{
+            not:1
+          }
+        },
+        deleted:{
+          not:1
+        }
       }, include: {
         sales:{
           include:{
@@ -40,8 +48,6 @@ const fetch = async (req,res) =>{
     if (result.length === 0) {
       return res.status(404).send({message:"Empty"})
     }
-
-    const count = await prisma.transactions.count()
     return res.status(200).send({result, count})
   } else if( id_lot === 0 ) {
     const result = await prisma.lots.findMany({
@@ -49,7 +55,13 @@ const fetch = async (req,res) =>{
         sales:{
           clients:{
             id:id_client
+          },
+          deleted:{
+            not:1
           }
+        },
+        deleted:{
+          not:1
         }
       }, include: {
         sales:{
@@ -93,7 +105,15 @@ const pdfmake = async (req, res) => {
     if(id_client === 0){
       result = await prisma.lots.findMany({
         where:{
-          id: id_lot
+          id: id_lot,
+          sales:{
+            deleted:{
+              not:1
+            }
+          },
+          deleted:{
+            not:1
+          }
         }, include: {
           sales:{
             include:{
@@ -112,7 +132,13 @@ const pdfmake = async (req, res) => {
           sales:{
             clients:{
               id:id_client
+            },
+            deleted:{
+              not:1
             }
+          },
+          deleted:{
+            not:1
           }
         }, include: {
           sales:{
