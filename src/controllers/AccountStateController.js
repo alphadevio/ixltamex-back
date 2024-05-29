@@ -162,7 +162,7 @@ const pdfmake = async (req, res) => {
       </div>
       <table style="width: 100%;">
         <tr>
-          <th style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #ffda44;">Código</th>
+          <th style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #ffda44;">ID</th>
           <th style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #ffda44;">Nombre</th>
           <th style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #ffda44;">Pagado</th>
         </tr>
@@ -171,7 +171,7 @@ const pdfmake = async (req, res) => {
         content += `
         <tr>
           <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;"></td>
-          <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;">Pago con código ${result[i].sales.payments[j].id}</td>
+          <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;">Pago con id ${result[i].sales.payments[j].id}</td>
           <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;"></td>
         </tr>
         `
@@ -181,7 +181,7 @@ const pdfmake = async (req, res) => {
         for(k in result[i].sales.payments[j].transactions){
           content += `
           <tr>
-            <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif;">${result[i].sales.payments[j].transactions[k].id}</td>
+            <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif;">${result[i].sales.payments[j].transactions[k].id} ${result[i].sales.payments[j].transactions[k].refunded === 1 ? '(reembolsado)' : ''}</td>
             <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif;">Pago en ${result[i].sales.payments[j].transactions[k].payment_type}</td>
             <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif;">$${(result[i].sales.payments[j].transactions[k].amount).toLocaleString()}</td>
           </tr>
