@@ -193,6 +193,9 @@ const pdfmake = async (req, res) => {
           <th style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #ffda44;">Pagado</th>
         </tr>
       `
+
+      paid += parseFloat(result[i].sales.paid)
+      total += parseFloat(result[i].sales.price)
       for(j in result[i].sales.payments){
         content += `
         <tr>
@@ -201,8 +204,7 @@ const pdfmake = async (req, res) => {
           <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;"></td>
         </tr>
         `
-        paid += parseFloat(result[i].sales.payments[j].paid_amount)
-        total += parseFloat(result[i].sales.payments[j].amount)
+        
 
         for(k in result[i].sales.payments[j].transactions){
           content += `
