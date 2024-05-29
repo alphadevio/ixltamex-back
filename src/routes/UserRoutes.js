@@ -2,10 +2,12 @@ const express = require('express')
 const { UserController } = require('../controllers/UserController')
 const UserRouter = express.Router()
 
-UserRouter.get('/',UserController.fetch)
-UserRouter.post('/',UserController.save)
-UserRouter.put('/',UserController.update)
-UserRouter.delete('/',UserController.destroy)
-UserRouter.post('/login',UserController.login)
+const { verifyToken } = require('../middleware/verifyToken')
+
+UserRouter.get('/', verifyToken, UserController.fetch)
+UserRouter.post('/', verifyToken, UserController.save)
+UserRouter.put('/', verifyToken, UserController.update)
+UserRouter.delete('/', verifyToken, UserController.destroy)
+UserRouter.post('/login', UserController.login)
 
 module.exports = UserRouter

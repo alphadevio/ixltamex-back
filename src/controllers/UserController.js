@@ -2,6 +2,8 @@ const { PrismaClient } = require("@prisma/client");
 const { User } = require("../models/User");
 const bcrypt = require('bcrypt');
 const prisma = new PrismaClient();
+require('dotenv').config();
+const jwt = require('jsonwebtoken')
   
 const save = async (req, res) => {
   const salt_rounds = 10;
@@ -159,7 +161,10 @@ const save = async (req, res) => {
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (passwordMatch) {
           delete user.password;
-          return res.status(200).send({ message: "Login correcto", user });
+
+          const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, { expiresIn: '24h' });
+
+          return res.status(200).send({ message: "Login correcto", user, token });
         } else {
           return res.status(403).send({ message: "Login incorrecto" });
         }
@@ -167,7 +172,7 @@ const save = async (req, res) => {
         return res.status(403).send({ message: "Login incorrecto" });
       }
     } catch (error) {
-      return res.status(500).send({ error, message: "Internal server error" });
+      return res.status(500).send({ error: error.message, message: "Internal server error" });
     }
   };
   
