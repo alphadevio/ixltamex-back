@@ -12,6 +12,7 @@ const { PdfRoutes } = require('./routes/PdfRoutes')
 const { AssetRoutes } = require('./routes/AssetRoutes')
 const { AccountStateRoutes } = require('./routes/AccountStateRoutes')
 const { SpendingsRoutes } = require('./routes/SpendingsRoutes')
+const { CutRoutes } = require('./routes/CutRoutes')
 
 const { verifyToken } = require('./middleware/verifyToken')
 
@@ -32,5 +33,6 @@ router.use('/pdf', verifyToken, PdfRoutes)
 router.use('/asset', verifyToken, AssetRoutes)
 router.use('/account-state', verifyToken, AccountStateRoutes)
 router.use('/spendings', verifyToken, SpendingsRoutes)
+router.use('/cut', verifyToken, CutRoutes)
 
 module.exports = router;
