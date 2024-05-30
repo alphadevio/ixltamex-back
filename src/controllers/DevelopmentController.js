@@ -130,6 +130,9 @@ const fetch = async (req,res) =>{
               select: { name: true },
             },
           },
+          where:{
+            deleted:{not:1}
+          }
         },
         apples: {
           where: where_apples,
