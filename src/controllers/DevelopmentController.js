@@ -176,19 +176,49 @@ const update = async (req,res) =>{
     }
 
     if (percentages) {
-      await Promise.all(percentages.map(async (percentage) => {
-        await prisma.percentages.updateMany({
-          data: {
-            percentage: percentage.percentage
-          },
-          where: {
-            AND: [
-              { development_id: development.id },
-              { user_id: percentage.user_id }
-            ]
-          }
-        });
+      // await Promise.all(percentages.map(async (percentage) => {
+      //   const updated = await prisma.percentages.updateMany({
+      //     data: {
+      //       percentage: percentage.percentage
+      //     },
+      //     where: {
+      //       AND: [
+      //         { development_id: development.id },
+      //         { user_id: percentage.user_id }
+      //       ]
+      //     }
+      //   });
+      //   console.log('ACTUALIZACION', updated)
+      // }));
+
+      let percentage = 0 
+      percentages.forEach(socio => {
+          percentage += parseFloat(socio.percentage)
+      });
+      
+      if (percentage > 100) {
+          return res.status(400).send({error:"La suma de los porcentajes son mas de 100"})
+      }
+
+      await prisma.percentages.updateMany({
+        data:{deleted:1},
+        where:{
+          AND: [
+            { development_id: development.id },
+            { user_id: percentage.user_id }
+          ]
+        }
+      })
+
+      const sociosData = percentages.map(socio => ({
+        development_id: development.id,
+        user_id: socio.user_id,
+        percentage: socio.percentage
       }));
+
+      await prisma.percentages.createMany({
+          data: sociosData
+      });
     }
 
     const updated_development = await prisma.developments.update({
@@ -196,6 +226,13 @@ const update = async (req,res) =>{
           id: development.id,
         },
         data: data,
+        include:{
+          percentages:{
+            include:{
+              users:true
+            }
+          }
+        }
       });
     
     return res.status(200).send({ message: "Desarollo modificado exitosamente", result:updated_development});
