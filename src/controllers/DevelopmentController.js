@@ -233,6 +233,10 @@ const update = async (req,res) =>{
           percentages:{
             include:{
               users:true
+            }, where: {
+              deleted:{
+                not:1
+              }
             }
           }
         }
