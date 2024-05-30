@@ -124,6 +124,8 @@ model payments {
   paid_amount  Decimal? @default(0.00) @db.Decimal(10, 2)
   sales        sales?   @relation(fields: [id_sale], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "payments_ibfk_1")
 
+  transactions transactions[]
+
   @@index([id_sale], map: "id_sale")
 }
 
@@ -134,6 +136,7 @@ model transactions {
   refunded     Int?     @default(0)
   created_at   DateTime @default(now()) @db.DateTime(0)
   payment_type String?  @db.VarChar(25)
+  payments     payments @relation(fields: [id_payment], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model assets_users {
