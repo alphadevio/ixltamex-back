@@ -51,6 +51,8 @@ const getCut = async (req,res) =>{
       }
     }
 
+    if(totalDevelopmentEarned < 0) totalDevelopmentEarned = 0
+
     const today = Date.now()
     await prisma.cuts.create({
       data:{
@@ -77,7 +79,7 @@ const getCut = async (req,res) =>{
       }
     })
     
-    return res.status(200).send({message:'Cut executed successfully', totalEarned: totalDevelopmentEarned, totalDevelopment, percentages, spendings})
+    return res.status(200).send({message:'Cut executed successfully', cutEarnings: totalDevelopmentEarned, totalDevelopment, percentages, spendings})
   } catch (error){
     return res.status(500).send({message:'Internal server error', error:error.message})
   }
