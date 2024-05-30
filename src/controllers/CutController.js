@@ -68,6 +68,8 @@ const getCut = async (req,res) =>{
         deleted:{
           not:1
         }
+      }, include: {
+        users:true
       }
     })
 
@@ -76,6 +78,8 @@ const getCut = async (req,res) =>{
         deleted:{
           not:1
         }, id_development:id_development
+      }, include:{
+        user:true
       }
     })
     
