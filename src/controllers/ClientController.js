@@ -99,6 +99,7 @@ const update = async (req,res) =>{
 }
 
 const destroy = async (req,res) =>{
+  try{
     let client_id = req.body.id;
   
     await prisma.clients.updateMany({
@@ -109,8 +110,63 @@ const destroy = async (req,res) =>{
         deleted: 1,
       },
     });
+
+    const ventasDelCliente = await prisma.sales.findMany({
+      where:{
+        id_client: client_id,
+        deleted:{not:1}
+      }
+    })
+
+    for(i in ventasDelCliente){
+      if(ventasDelCliente[i].paid !== ventasDelCliente[i].price){
+        await prisma.lots.update({
+          data:{
+            sold:0
+          }, where:{
+            sales:{
+              id_client: client_id
+            }, deleted:{not:null}
+          }
+        })
+      }
+    }
+
+    await prisma.transactions.updateMany({
+      data:{
+        deleted:1
+      },
+      where:{
+        payments:{
+          sales:{
+            id_client:client_id
+          }
+        }
+      }
+    })
+
+    await prisma.payments.updateMany({
+      data:{
+        deleted:1
+      }, where: {
+        sales:{
+          id_client: client_id
+        }
+      }
+    })
+
+    await prisma.sales.updateMany({
+      data:{
+        deleted:1
+      }, where: {
+        id_client: client_id
+      }
+    })
   
     return res.status(200).send({ message: "Client deleted succesfully" });
+  } catch ( error ) {
+    return res.status(200).send({ message: "Internal server error", error:error.message });
+  }
 };
 
 module.exports.ClientController = {save,fetch,update,destroy}
