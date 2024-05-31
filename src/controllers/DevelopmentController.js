@@ -70,12 +70,12 @@ const save = async (req,res) =>{
 }
 
 const fetch = async (req,res) =>{
-
   const id = parseInt(req.query.id);
   const id_apple = parseInt(req.query.id_apple);
   const sold = parseInt(req.query.sold); 
-  let offset = parseInt(req.query.offset)
-  const limit = parseInt(req.query.limit)
+  const limit = parseInt(req.query.limit);
+  const search = req.query.where
+  let offset = parseInt(req.query.offset);
 
   let take = 999999
   if(limit) {

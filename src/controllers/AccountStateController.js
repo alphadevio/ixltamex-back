@@ -83,7 +83,7 @@ const fetch = async (req,res) =>{
     const count = await prisma.transactions.count()
     return res.status(200).send({result, count})
   } else {
-    return res.status(403).send({message:'Specify either id_lot or id_user'})
+    return res.status(403).send({message:'Specify either id_lot or id_client'})
   }
 }
 

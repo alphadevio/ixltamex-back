@@ -39,19 +39,21 @@ const save = async (req,res) =>{
 
 const fetch = async (req,res) =>{
     const limit = parseInt(req.query.limit)
+    const id_client = req.query.id_client
+    let offset = parseInt(req.query.offset)
 
+    const id = req.body.id
     let take = 999999
+
     if(limit) {
         take = limit
     }
-    const id = req.body.id
 
     let where = {
         deleted:{
             not:1
         }
     }
-    let offset = parseInt(req.query.offset)
 
     if(!offset){
         offset = 0
@@ -59,6 +61,12 @@ const fetch = async (req,res) =>{
 
     if (id) {
         where.id = id
+    }
+
+    if(id_client) {
+        where.sales = {
+            id_client: parseInt(id_client)
+        }
     }
 
     const result = await prisma.lots.findMany({where,
@@ -76,7 +84,7 @@ const fetch = async (req,res) =>{
             }
         },
         skip:offset,
-        take:take
+        take:take,
     })
 
     if (result.length === 0) {

@@ -42,6 +42,7 @@ const save = async (req, res) => {
   //(where, orderby, limit, offset)
   const fetch = async (req, res) => {
     const limit = parseInt(req.query.limit)
+    const search = req.query.where
 
     let take = 999999
     if(limit) {
@@ -57,6 +58,12 @@ const save = async (req, res) => {
 
     if(!offset){
       offset = 0
+    }
+
+    if(search) {
+      where.name = {
+        contains:search
+      }
     }
 
     try {
