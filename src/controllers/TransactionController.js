@@ -19,7 +19,13 @@ const fetch = async (req, res) => {
             'payments.payment_date',
             'payments.paid as paid_payments',
             'payments.paid_amount as paid_amount_payments',
-            'sales.*',
+            'sales.price as price_sales',
+            'sales.paid as paid_sales',
+            'sales.payment_day as payment_day_sales',
+            'sales.payment_weekday as payment_weekday_sales',
+            'sales.frequency_type as frequency_type_sales',
+            'sales.frequency_amount as frequency_amount_sales',
+            'sales.first_payment as first_payment_sales',
             'lots.id as lot_id',
             'lots.id_apple',
             'lots.lot_number',
@@ -30,8 +36,13 @@ const fetch = async (req, res) => {
             'lots.left_length',
             'lots.deleted',
             'lots.sold',
-            'apples.*',
-            'developments.*'
+            'apples.name as name_apples',
+            'apples.id_development as id_development_apples',
+            'apples.id as id_apples',
+            'developments.name as name_developments',
+            'developments.location as location_developments',
+            'developments.lots as lots_developments',
+            'developments.id as id_developments',
         )
         .leftJoin('payments', 'transactions.id_payment', 'payments.id')
         .leftJoin('sales', 'payments.id_sale', 'sales.id')
