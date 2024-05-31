@@ -24,6 +24,7 @@ const fetch = async (req,res) =>{
   let offset = parseInt(req.query.offset)
   let id_client = parseInt(req.query.id_client)
   const limit = parseInt(req.query.limit)
+  const search = req.query.where
 
   let take = 999999
   if(limit) {
@@ -38,6 +39,40 @@ const fetch = async (req,res) =>{
 
   if(id_client){
     where.id_client = id_client
+  }
+
+  if(search) {
+    where.OR = [
+      { description: {
+        contains: search
+      }},
+      { clients:{
+        name:{
+          contains:search
+        }
+      }},
+      { lots:{
+        lot_number:{
+          equals:parseInt(search)
+        }
+      }},
+      { lots: {
+        apples: {
+          name:{
+            contains:search
+          }
+        }
+      }},
+      { lots: {
+        apples: {
+          developments: {
+            name: {
+              contains: search
+            }
+          }
+        }
+      }}
+    ]
   }
 
   const result = await prisma.assets_users.findMany({

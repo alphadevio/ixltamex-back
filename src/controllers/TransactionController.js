@@ -7,6 +7,7 @@ const fetch = async (req, res) => {
     const id_client = req.query.id_cliente;
     const offset = parseInt(req.query.offset);
     const limit = parseInt(req.query.limit)
+    const searchTerm = req.query.where;
 
     let take = 999999
     if(limit) {
@@ -52,6 +53,7 @@ const fetch = async (req, res) => {
         )
         .leftJoin('payments', 'transactions.id_payment', 'payments.id')
         .leftJoin('sales', 'payments.id_sale', 'sales.id')
+        .leftJoin('clients', 'sales.id_client', 'clients.id')
         .leftJoin('lots', 'sales.id_lot', 'lots.id')
         .leftJoin('apples', 'lots.id_apple', 'apples.id')
         .leftJoin('developments', 'apples.id_development', 'developments.id')
@@ -63,6 +65,18 @@ const fetch = async (req, res) => {
 
     if (id_client) {
         baseQuery = baseQuery.where('sales.id_client', parseInt(id_client));
+    }
+
+    if (searchTerm) {
+        baseQuery = baseQuery.andWhere(builder => {
+            builder
+                .orWhere('transactions.id', 'like', `%${searchTerm}%`)
+                .orWhere('transactions.amount', 'like', `%${searchTerm}%`)
+                .orWhere('lots.lot_number', 'like', `%${searchTerm}%`)
+                .orWhere('apples.name', 'like', `%${searchTerm}%`)
+                .orWhere('developments.name', 'like', `%${searchTerm}%`)
+                .orWhere('clients.name', 'like', `%${searchTerm}%`);
+        });
     }
 
     // Clonar la consulta base para el conteo total

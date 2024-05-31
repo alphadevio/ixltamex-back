@@ -17,13 +17,32 @@ const save = async (req,res) =>{
 
 const fetch = async (req,res) =>{
   const { id_user } = req.query
+  const search = req.query.where
+  let offset = parseInt(req.query.offset)
 
   let where = {
     deleted:{
         not:1
     }
   }
-  let offset = parseInt(req.query.offset)
+
+  if(search){
+    where.OR = [
+      { description: {
+        contains: search
+      }},
+      { user:{
+        name:{
+          contains:search
+        }
+      }},
+      { development : {
+        name: {
+          contains: search
+        }
+      }}
+    ]
+  }
 
   if(!offset){
     offset = 0
