@@ -100,7 +100,7 @@ const fetch = async (req,res) =>{
   if(search){
     where.name = {
       contains:search,
-      mode: 'insensitive'
+      
     }
   }
 

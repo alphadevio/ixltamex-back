@@ -63,7 +63,7 @@ const save = async (req, res) => {
     if(search) {
       where.name = {
         contains:search,
-        mode: 'insensitive'
+        
       }
     }
 

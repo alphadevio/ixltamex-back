@@ -25,6 +25,7 @@ const save = async (req,res) =>{
 const fetch = async (req,res) =>{
   let offset = parseInt(req.query.offset)
   const limit = parseInt(req.query.limit)
+  const search = req.query.where
 
   let take = 999999
   if(limit) {
@@ -35,24 +36,32 @@ const fetch = async (req,res) =>{
     offset = 0
   }
 
-    let where = {deleted:{not:1}}
-    const result = await prisma.clients.findMany({
-      where,
-      skip:offset,
-      take:take
-    })
+  let where = {deleted:{not:1}}
 
-    if (result.length === 0) {
-        return res.status(404).send({message:"Empty"})
+  if(search){
+    where.name = {
+      contains:search,
+      
     }
+  }
 
-    const count = await prisma.clients.count({where:{deleted:{not:1}}})
+  const result = await prisma.clients.findMany({
+    where,
+    skip:offset,
+    take:take
+  })
 
-    result.forEach(client => {
-      client.url = "https://api.ixtlamex.alphadev.io/public/" + client.id_file_name
-    });
+  if (result.length === 0) {
+      return res.status(404).send({message:"Empty"})
+  }
 
-    return res.status(200).send({result, count})
+  const count = await prisma.clients.count({where:{deleted:{not:1}}})
+
+  result.forEach(client => {
+    client.url = "https://api.ixtlamex.alphadev.io/public/" + client.id_file_name
+  });
+
+  return res.status(200).send({result, count})
 }
 
 const update = async (req,res) =>{

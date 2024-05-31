@@ -20,6 +20,7 @@ const save = async (req,res) =>{
 const fetch = async (req,res) =>{
   let offset = parseInt(req.query.offset)
   const limit = parseInt(req.query.limit)
+  const search = req.query.where
 
   let take = 999999
   if(limit) {
@@ -39,6 +40,12 @@ const fetch = async (req,res) =>{
 
   if (id) {
       where.id = id
+  }
+
+  if(search) {
+    where.name = {
+      contains:search,
+    }
   }
 
   const result = await prisma.apples.findMany({

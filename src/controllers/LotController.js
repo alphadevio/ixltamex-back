@@ -40,6 +40,7 @@ const save = async (req,res) =>{
 const fetch = async (req,res) =>{
     const limit = parseInt(req.query.limit)
     const id_client = req.query.id_client
+    const search = req.query.where
     let offset = parseInt(req.query.offset)
 
     const id = req.body.id
@@ -66,6 +67,12 @@ const fetch = async (req,res) =>{
     if(id_client) {
         where.sales = {
             id_client: parseInt(id_client)
+        }
+    }
+
+    if(search) {
+        where.lot_number = {
+            equals:parseInt(search),
         }
     }
 
