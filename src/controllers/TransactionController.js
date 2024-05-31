@@ -30,7 +30,8 @@ const fetch = async (req, res) => {
             'lots.left_length',
             'lots.deleted',
             'lots.sold',
-            'developments.name'
+            'apples.*',
+            'developments.*'
         )
         .leftJoin('payments', 'transactions.id_payment', 'payments.id')
         .leftJoin('sales', 'payments.id_sale', 'sales.id')
