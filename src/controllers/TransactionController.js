@@ -14,6 +14,12 @@ const fetch = async (req, res) => {
             'transactions.created_at',
             'transactions.refunded',
             'transactions.id_payment',
+            'payments.id as id_payment',
+            'payments.amount as amount_payment',
+            'payments.payment_date',
+            'payments.paid as paid_payments',
+            'payments.paid_amount as paid_amount_payments',
+            'sales.* as sales',
             'lots.id as lot_id',
             'lots.id_apple',
             'lots.lot_number',
@@ -30,7 +36,8 @@ const fetch = async (req, res) => {
         .leftJoin('sales', 'payments.id_sale', 'sales.id')
         .leftJoin('lots', 'sales.id_lot', 'lots.id')
         .leftJoin('apples', 'lots.id_apple', 'apples.id')
-        .leftJoin('developments', 'apples.id_development', 'developments.id');
+        .leftJoin('developments', 'apples.id_development', 'developments.id')
+        .orderBy('transactions.created_at','desc')
 
     if (id_lot) {
         baseQuery = baseQuery.where('lots.id', parseInt(id_lot));
