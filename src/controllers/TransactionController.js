@@ -19,7 +19,7 @@ const fetch = async (req, res) => {
             'payments.payment_date',
             'payments.paid as paid_payments',
             'payments.paid_amount as paid_amount_payments',
-            'sales.* as sales',
+            'sales.*',
             'lots.id as lot_id',
             'lots.id_apple',
             'lots.lot_number',
