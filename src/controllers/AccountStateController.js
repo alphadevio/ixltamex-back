@@ -48,7 +48,7 @@ const fetch = async (req,res) =>{
     if (result.length === 0) {
       return res.status(404).send({message:"Empty"})
     }
-    return res.status(200).send({result, count})
+    return res.status(200).send({result})
   } else if( id_lot === 0 ) {
     const result = await prisma.lots.findMany({
       where:{
@@ -80,8 +80,7 @@ const fetch = async (req,res) =>{
       return res.status(404).send({message:"Empty"})
     }
 
-    const count = await prisma.transactions.count()
-    return res.status(200).send({result, count})
+    return res.status(200).send({result})
   } else {
     return res.status(403).send({message:'Specify either id_lot or id_client'})
   }

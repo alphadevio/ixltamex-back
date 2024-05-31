@@ -97,6 +97,13 @@ const fetch = async (req,res) =>{
     },
   };
 
+  if(search){
+    where.name = {
+      contains:search,
+      mode: 'insensitive'
+    }
+  }
+
   const where_apples = {
     deleted: {
       not: 1,
