@@ -6,6 +6,8 @@ const save = async (req,res) =>{
   const payload = req.body
   const asset = new Asset(payload);
 
+  console.log(asset)
+
   try {
     const new_asset = await prisma.assets_users.create({
       data: asset
@@ -21,6 +23,12 @@ const save = async (req,res) =>{
 const fetch = async (req,res) =>{
   let offset = parseInt(req.query.offset)
   let id_client = parseInt(req.query.id_client)
+  const limit = parseInt(req.query.limit)
+
+  let take = 999999
+  if(limit) {
+    take = limit
+  }
 
   if(!offset){
     offset = 0
@@ -35,7 +43,7 @@ const fetch = async (req,res) =>{
   const result = await prisma.assets_users.findMany({
     where,
     skip:offset,
-    take:10,
+    take:take,
     include:{
       clients:true,
       lots:{
@@ -87,16 +95,20 @@ const update = async (req,res) =>{
   }
 
   let response = []
-
+//
   for( id in idsToUpdate){
-    const updated_asset = await prisma.assets_users.update({
-      where: {
-        id: parseInt(idsToUpdate[id]),
-      },
-      data: data,
-    });
+    const existingAsset = await prisma.assets_users.findMany({where:{id:parseInt(idsToUpdate[id])}})
 
-    response.push( updated_asset )
+    if(existingAsset.length > 0) {
+      const updated_asset = await prisma.assets_users.update({
+        where: {
+          id: parseInt(idsToUpdate[id]),
+        },
+        data: data,
+      });
+  
+      response.push( updated_asset )
+    }
   }
   
   return res.status(200).send({ message: "Asset succesfully modified", result:response});

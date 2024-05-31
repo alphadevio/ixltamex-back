@@ -69,6 +69,9 @@ const update = async (req,res) =>{
   if (spending.date !== undefined && spending.date !== null) {
     data.date = spending.date;
   }
+  if (spending.description !== undefined && spending.description !== null) {
+    data.description = spending.description
+  }
 
   const updated_spending = await prisma.spendings.update({
     where: {

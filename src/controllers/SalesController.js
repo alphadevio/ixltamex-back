@@ -88,6 +88,12 @@ const fetch = async (req, res) => {
   try {
     const { id_cliente } = req.query;
     let offset = parseInt(req.query.offset)
+    const limit = parseInt(req.query.limit)
+
+    let take = 999999
+    if(limit) {
+      take = limit
+    }
 
     if(!offset){
       offset = 0
@@ -111,7 +117,7 @@ const fetch = async (req, res) => {
       },
       where: whereCondition,
       skip:offset,
-      take:10
+      take:take
     })
   
     result.forEach(sale => {

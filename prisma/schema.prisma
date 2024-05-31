@@ -142,7 +142,7 @@ model transactions {
 model assets_users {
   id          Int      @id @default(autoincrement())
   description String?  @db.VarChar(250)
-  valor       Decimal? @db.Decimal(10, 0)
+  valor       Decimal? @db.Decimal(10, 2)
   status      Int?
   id_client   Int?
   id_lot      Int?
@@ -157,6 +157,7 @@ model spendings {
   id             Int          @id @default(autoincrement())
   id_user        Int
   id_development Int
+  description    String?
   ammount        Decimal      @db.Decimal(10, 2)
   date           Decimal?     @default(0) @db.Decimal(13, 0)
   deleted        Int?         @default(0)

@@ -6,6 +6,12 @@ const fetch = async (req, res) => {
     const id_lot = req.query.id_lot;
     const id_client = req.query.id_cliente;
     const offset = parseInt(req.query.offset);
+    const limit = parseInt(req.query.limit)
+
+    let take = 999999
+    if(limit) {
+        take = limit
+    }
 
     let baseQuery = db('transactions')
         .select(
@@ -66,7 +72,7 @@ const fetch = async (req, res) => {
         baseQuery = baseQuery.offset(offset);
     }
 
-    baseQuery = baseQuery.limit(10);
+    baseQuery = baseQuery.limit(take);
 
     try {
         const [result, countResult] = await Promise.all([

@@ -8,7 +8,7 @@ const save = async (req,res) =>{
     const lot = new Lot(payload);
 
     try {
-
+//
         const existing_lot_numbers = await prisma.lots.findMany({
             select:{
                 lot_number:true
@@ -24,7 +24,7 @@ const save = async (req,res) =>{
         const lot_number_exists = existing_lot_numbers.some(existingLot => existingLot.lot_number === lot.lot_number);
 
         if (lot_number_exists) {
-            throw new Error('Lot number already exists');
+            return res.status(405).send({message:'Lot number already registered'})
         }
         
         const new_lot = await prisma.lots.create({data:lot})
@@ -38,7 +38,12 @@ const save = async (req,res) =>{
 }
 
 const fetch = async (req,res) =>{
+    const limit = parseInt(req.query.limit)
 
+    let take = 999999
+    if(limit) {
+        take = limit
+    }
     const id = req.body.id
 
     let where = {
@@ -71,7 +76,7 @@ const fetch = async (req,res) =>{
             }
         },
         skip:offset,
-        take:10
+        take:take
     })
 
     if (result.length === 0) {

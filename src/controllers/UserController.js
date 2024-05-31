@@ -41,6 +41,12 @@ const save = async (req, res) => {
   
   //(where, orderby, limit, offset)
   const fetch = async (req, res) => {
+    const limit = parseInt(req.query.limit)
+
+    let take = 999999
+    if(limit) {
+      take = limit
+    }
     let result;
     let where = {
         deleted: {
@@ -64,7 +70,7 @@ const save = async (req, res) => {
               profile_id:true
             },
             skip:offset,
-            take:10
+            take:take
 
         });
     } catch (error) {

@@ -19,7 +19,13 @@ const save = async (req,res) =>{
 
 const fetch = async (req,res) =>{
   let offset = parseInt(req.query.offset)
+  const limit = parseInt(req.query.limit)
 
+  let take = 999999
+  if(limit) {
+    take = limit
+  }
+  
   if(!offset){
     offset = 0
   }
@@ -39,7 +45,7 @@ const fetch = async (req,res) =>{
     where,
     include:{lots:true, developments:true},
     skip:offset,
-    take:10
+    take:take
   })
 
   if (result.length === 0) {
