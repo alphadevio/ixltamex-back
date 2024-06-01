@@ -8,8 +8,10 @@ const getCut = async (req,res) =>{
     return res.status(403).send({ message: 'Specify id_development' })
   }
   
-  const firstDay = new Date(year, month - 1, 1)
-  const lastDay = new Date(year, month, 0)
+  const firstDay = new Date(year, month - 1, 1, 0, 0, 0, 0)
+  const lastDay = new Date(year, month, 1, 0, 0, 0, 0)
+
+  console.log(firstDay, lastDay)
 
   try {
     const transactions = await prisma.transactions.findMany({
@@ -24,11 +26,11 @@ const getCut = async (req,res) =>{
               }
             }
           }
-        },
-        created_at: {
+        }, created_at: {
           gte: firstDay,
           lte: lastDay,
         },
+
         deleted:{
           not:1
         }
@@ -43,9 +45,9 @@ const getCut = async (req,res) =>{
 
     for(i in transactions){
       if(transactions[i].refunded === 0) {
-        totalDevelopmentEarned += transactions[i].amount
+        totalDevelopmentEarned += parseFloat(transactions[i].amount)
       } else {
-        totalDevelopmentEarned -= transactions[i].amount
+        totalDevelopmentEarned -= parseFloat(transactions[i].amount)
       }
     }
 
@@ -60,8 +62,15 @@ const getCut = async (req,res) =>{
       }
     })
 
+    const milisFirstDay = firstDay.getTime()
+    const milisLastDay = lastDay.getTime()
+
     const spendings = await prisma.spendings.findMany({
       where:{
+        date:{
+          gte:milisFirstDay,
+          lte:milisLastDay
+        },
         deleted:{
           not:1
         }, id_development:id_development
@@ -69,6 +78,8 @@ const getCut = async (req,res) =>{
         user:true
       }
     })
+
+    return res.status(200).send({message:'Cut executed successfully', cutEarnings: totalDevelopmentEarned, percentages, spendings})
   } catch (error){
     return res.status(500).send({message:'Internal server error', error:error.message})
   }
