@@ -128,9 +128,13 @@ const save = async (req, res) => {
         data.phone_number = user.phone_number;
     }
 
-    // if (user.password !== undefined && user.password !== null) {
-    //     data.password = user.password;
-    // }
+    if (user.password !== undefined && user.password !== null) {
+      const salt_rounds = 10;
+      const salt = await bcrypt.genSalt(salt_rounds);
+      const hashed = await bcrypt.hash(user.password, salt);
+
+      data.password = hashed;
+    }
 
     if (user.profile_id !== undefined && user.profile_id !== null) {
         data.profile_id = user.profile_id;
