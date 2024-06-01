@@ -72,7 +72,7 @@ const fetch = async (req,res) =>{
 
     if(search) {
         where.lot_number = {
-            equals:parseInt(search),
+            contains:search,
         }
     }
 
