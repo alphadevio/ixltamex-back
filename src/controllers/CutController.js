@@ -11,16 +11,69 @@ const getCut = async (req,res) =>{
   const firstDay = new Date(year, month - 1, 1)
   const lastDay = new Date(year, month, 0)
 
-  prisma.transactions.findMany({
-    where: {
-      id_development: id_development,
-      created_at: {
-        gte: firstDay,
-        lte: lastDay
+  try {
+    const transactions = await prisma.transactions.findMany({
+      where: {
+        payments:{
+          sales:{
+            lots:{
+              apples:{
+                developments:{
+                  id:id_development
+                }
+              }
+            }
+          }
+        },
+        created_at: {
+          gte: firstDay,
+          lte: lastDay,
+        },
+        deleted:{
+          not:1
+        }
+      }
+    })
+
+    if (transactions.length === 0) {
+      return res.status(403).send({message:"Development has no earnings in the specified month"})
+    }
+
+    let totalDevelopmentEarned = 0
+
+    for(i in transactions){
+      if(transactions[i].refunded === 0) {
+        totalDevelopmentEarned += transactions[i].amount
+      } else {
+        totalDevelopmentEarned -= transactions[i].amount
       }
     }
-  })
 
+    const percentages = await prisma.percentages.findMany({
+      where:{
+        development_id: id_development,
+        deleted:{
+          not:1
+        }
+      }, include: {
+        users:true
+      }
+    })
+
+    const spendings = await prisma.spendings.findMany({
+      where:{
+        deleted:{
+          not:1
+        }, id_development:id_development
+      }, include:{
+        user:true
+      }
+    })
+  } catch (error){
+    return res.status(500).send({message:'Internal server error', error:error.message})
+  }
+  
+  
   // try{
   //   const payments = await prisma.sales.findMany({
   //     where:{

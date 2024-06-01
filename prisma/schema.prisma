@@ -157,13 +157,13 @@ model assets_users {
 
 model spendings {
   id             Int          @id @default(autoincrement())
-  id_user        Int
+  id_user        Int?
   id_development Int
   description    String?
   ammount        Decimal      @db.Decimal(10, 2)
   date           Decimal?     @default(0) @db.Decimal(13, 0)
   deleted        Int?         @default(0)
-  user           users        @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "spendings_ibfk_1")
+  user           users?       @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "spendings_ibfk_1")
   development    developments @relation(fields: [id_development], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "spendings_ibfk_2")
 
   @@index([id_development], map: "id_development")

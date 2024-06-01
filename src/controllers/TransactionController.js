@@ -70,6 +70,8 @@ const fetch = async (req, res) => {
         baseQuery = baseQuery.where('sales.id_client', parseInt(id_client));
     }
 
+    baseQuery = baseQuery.where('transactions.deleted', 0);
+
     if (searchTerm) {
         baseQuery = baseQuery.andWhere(builder => {
             builder
