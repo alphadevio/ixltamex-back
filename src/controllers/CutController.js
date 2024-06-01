@@ -47,7 +47,7 @@ const getCut = async (req,res) =>{
       if(transactions[i].refunded === 0) {
         totalDevelopmentEarned += parseFloat(transactions[i].amount)
       } else {
-        totalDevelopmentEarned -= parseFloat(transactions[i].amount)
+        // totalDevelopmentEarned -= parseFloat(transactions[i].amount)
       }
     }
 
