@@ -217,6 +217,16 @@ const destroy = async (req, res) => {
     },
   });
 
+  await prisma.lots.updateMany({
+    data:{
+      sold:0
+    }, where:{
+      sales:{
+        id: id_sale
+      }
+    }
+  })
+
   return res.status(200).send({ message: "Sale deleted succesfully" });
 };
 
