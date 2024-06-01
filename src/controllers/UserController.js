@@ -25,7 +25,7 @@ const save = async (req, res) => {
     });
     
     if (repeated_email) {
-      throw new Error("Existe una cuenta con ese correo");
+      throw new Error("Existe una cuenta con ese usuario");
     }
     const new_user = await prisma.users.create({
       data: user
