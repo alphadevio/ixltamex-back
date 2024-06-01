@@ -79,7 +79,7 @@ model apples {
 model lots {
   id           Int            @id @default(autoincrement())
   id_apple     Int?
-  lot_number   Int?
+  lot_number   String?        @db.VarChar(10)
   area         Float
   top_width    Float
   bottom_width Float
