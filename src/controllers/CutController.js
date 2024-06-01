@@ -2,13 +2,24 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const getCut = async (req,res) =>{
-  const { id_development } = req.body
-  const { month } = req.body
-  const { year } = req.body
+  const { id_development, month, year } = req.body
 
-  if(!id_development){
-    return res.status(403).send({message:'Specify id_development'})
+  if (!id_development) {
+    return res.status(403).send({ message: 'Specify id_development' })
   }
+  
+  const firstDay = new Date(year, month - 1, 1)
+  const lastDay = new Date(year, month, 0)
+
+  prisma.transactions.findMany({
+    where: {
+      id_development: id_development,
+      created_at: {
+        gte: firstDay,
+        lte: lastDay
+      }
+    }
+  })
 
   // try{
   //   const payments = await prisma.sales.findMany({

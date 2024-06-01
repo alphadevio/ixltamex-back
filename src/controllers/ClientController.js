@@ -137,7 +137,7 @@ const destroy = async (req,res) =>{
 
     await prisma.transactions.updateMany({
       data:{
-        
+        deleted:1
       },
       where:{
         payments:{

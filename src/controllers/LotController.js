@@ -82,11 +82,17 @@ const fetch = async (req,res) =>{
                 include:{
                     clients:true,
                     payments:true
+                },
+                where:{
+                    deleted:{not:1}
                 }
             },
             apples:{
                 include:{
                     developments:true
+                },
+                where:{
+                    deleted:{not:1}
                 }
             }
         },
