@@ -92,6 +92,7 @@ const fetch = async (req, res) => {
     let offset = parseInt(req.query.offset)
     const limit = parseInt(req.query.limit)
     const search = req.query.where
+    const orderby = req.query.orderby
 
     let take = 999999
     if(limit) {
@@ -144,7 +145,7 @@ const fetch = async (req, res) => {
       ]
     }
 
-    const result = await prisma.sales.findMany({
+    let result = await prisma.sales.findMany({
       include: {
         lots:true,
         clients:true,
@@ -166,12 +167,10 @@ const fetch = async (req, res) => {
     });
 
     result.forEach((element, index) => {
-      console.log('hola')
       if(element.payments.length > 0) {
         let bandera = false
         element.payments.forEach(element2 => {
           if(element2.payment_date < Date.now() && element2.paid !== 1){
-            console.log('ELEMENTO ATRASADO', element2)
             bandera = true
           }
         })
@@ -179,6 +178,12 @@ const fetch = async (req, res) => {
         else result[index].retarded = false
       }
     })
+    
+    if(orderby){
+      if(orderby === 'retarded'){
+        result = result.filter(item => item.retarded);
+      }
+    }
 
     const count = await prisma.sales.count({where:{deleted:{not:1}}})
   
