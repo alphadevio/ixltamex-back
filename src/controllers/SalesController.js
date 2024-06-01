@@ -122,7 +122,7 @@ const fetch = async (req, res) => {
         }},
         { lots:{
           lot_number:{
-            equals:parseInt(search)
+            contains:search
           }
         }},
         { lots: {
@@ -164,6 +164,21 @@ const fetch = async (req, res) => {
   
       sale.remaining = sale.total_amount - parseFloat(sale.paid);
     });
+
+    result.forEach((element, index) => {
+      console.log('hola')
+      if(element.payments.length > 0) {
+        let bandera = false
+        element.payments.forEach(element2 => {
+          if(element2.payment_date < Date.now() && element2.paid !== 1){
+            console.log('ELEMENTO ATRASADO', element2)
+            bandera = true
+          }
+        })
+        if(bandera) result[index].retarded = true
+        else result[index].retarded = false
+      }
+    })
 
     const count = await prisma.sales.count({where:{deleted:{not:1}}})
   
