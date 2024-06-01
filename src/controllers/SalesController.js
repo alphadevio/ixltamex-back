@@ -204,7 +204,7 @@ const update = async (req, res) => {
 }
 
 const destroy = async (req, res) => {
-  let id_sale = req.body.id;
+  let id_sale = req.params.id;
 
   await prisma.sales.updateMany({
     where: {

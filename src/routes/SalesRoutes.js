@@ -6,6 +6,6 @@ const SalesRoutes = express.Router()
 SalesRoutes.post('/',SalesController.save)
 SalesRoutes.get('/',SalesController.fetch)
 SalesRoutes.put('/',SalesController.update)
-SalesRoutes.delete('/',SalesController.destroy)
+SalesRoutes.delete('/:id',SalesController.destroy)
 
 module.exports.SalesRoutes = SalesRoutes
