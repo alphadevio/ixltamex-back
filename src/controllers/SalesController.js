@@ -42,23 +42,23 @@ const save = async (req, res) => {
           paid_amount: sale.first_payment
         }
       })
+
+      await prisma.sales.update({
+        data: {
+          paid: sale.first_payment
+        }, where: {
+          id: new_sale.id
+        }
+      })
+  
+      await prisma.transactions.create({
+        data:{
+          amount: parseFloat(sale.first_payment),
+          id_payment: first_ever_payment.id,
+          payment_type: 'otro'
+        }
+      })
     }
-
-    await prisma.sales.update({
-      data: {
-        paid: sale.first_payment
-      }, where: {
-        id: new_sale.id
-      }
-    })
-
-    await prisma.transactions.create({
-      data:{
-        amount: parseFloat(sale.first_payment),
-        id_payment: first_ever_payment.id,
-        payment_type: 'otro'
-      }
-    })
     
     const payment_data = payment_occurrences.map(payment_occurrence => ({
       id_sale: new_sale.id,
