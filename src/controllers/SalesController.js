@@ -39,7 +39,8 @@ const save = async (req, res) => {
           amount: sale.first_payment,
           payment_date: Date.now(),
           paid: 1,
-          paid_amount: sale.first_payment
+          paid_amount: sale.first_payment,
+          number: 0
         }
       })
 
@@ -60,12 +61,13 @@ const save = async (req, res) => {
       })
     }
     
-    const payment_data = payment_occurrences.map(payment_occurrence => ({
+    const payment_data = payment_occurrences.map((payment_occurrence, index) => ({
       id_sale: new_sale.id,
       amount: payment_amount_per_occurrence,
       payment_date: payment_occurrence,
       paid: 0,
-      paid_amount: 0
+      paid_amount: 0,
+      number: index + 1
     }));
     
 
