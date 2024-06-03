@@ -52,7 +52,7 @@ const fetch = async (req,res) =>{
   })
 
   if (result.length === 0) {
-    return res.status(205).send({result:[], message:"Empty"})
+    return res.status(200).send({result:[], message:"Empty"})
   }
 
   const count = await prisma.clients.count({where:{deleted:{not:1}}})
@@ -72,7 +72,6 @@ const update = async (req,res) =>{
       ID_file = req.file.filename
     }
 
-
     let data = {};
   
     if (client.name !== undefined && client.name !== null) {
@@ -80,13 +79,14 @@ const update = async (req,res) =>{
     }
 
     if (client.phone_number !== undefined && client.phone_number !== null) {
-        data.phone_number = client.phone_number;
+      data.phone_number = client.phone_number;
     }
 
     if (ID_file) {
-        data.id_file_name = ID_file;
+      data.id_file_name = ID_file;
     }
 
+    
     const updated_client = await prisma.clients.update({
         where: {
           id: parseInt(client.id),
