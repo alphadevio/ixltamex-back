@@ -111,13 +111,9 @@ const save = async (req, res) => {
     let payload = req.body;
     const user = new User(payload);
     let data = {};
-  
-    if (user.name !== undefined && user.name !== null) {
-      data.name = user.name;
-    }
 
     if (user.name !== undefined && user.name !== null) {
-        data.name = user.name;
+      data.name = user.name;
     }
 
     if (user.email !== undefined && user.email !== null) {
@@ -140,7 +136,7 @@ const save = async (req, res) => {
         data.profile_id = user.profile_id;
     }
 
-
+    console.log(data)
     await prisma.users.update({
       where: {
         id: user.id,

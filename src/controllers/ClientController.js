@@ -52,7 +52,7 @@ const fetch = async (req,res) =>{
   })
 
   if (result.length === 0) {
-      return res.status(404).send({message:"Empty"})
+    return res.status(205).send({result:[], message:"Empty"})
   }
 
   const count = await prisma.clients.count({where:{deleted:{not:1}}})
@@ -80,7 +80,7 @@ const update = async (req,res) =>{
     }
 
     if (client.phone_number !== undefined && client.phone_number !== null) {
-        data.development_id = client.development_id;
+        data.phone_number = client.phone_number;
     }
 
     if (ID_file) {

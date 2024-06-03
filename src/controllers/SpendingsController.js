@@ -62,7 +62,7 @@ const fetch = async (req,res) =>{
   })
 
   if (result.length === 0) {
-      return res.status(404).send({message:"Empty"})
+      return res.status(205).send({result:[], message:"Empty"})
   }
 
   const count = await prisma.spendings.count({where})

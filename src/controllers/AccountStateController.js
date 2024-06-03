@@ -46,7 +46,7 @@ const fetch = async (req,res) =>{
     })
 
     if (result.length === 0) {
-      return res.status(404).send({message:"Empty"})
+      return res.status(205).send({result:[], message:"Empty"})
     }
     return res.status(200).send({result})
   } else if( id_lot === 0 ) {
@@ -77,7 +77,7 @@ const fetch = async (req,res) =>{
     })
 
     if (result.length === 0) {
-      return res.status(404).send({message:"Empty"})
+      return res.status(205).send({result:[], message:"Empty"})
     }
 
     return res.status(200).send({result})
