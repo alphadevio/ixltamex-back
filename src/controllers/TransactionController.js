@@ -26,6 +26,7 @@ const fetch = async (req, res) => {
             'payments.payment_date',
             'payments.paid as paid_payments',
             'payments.paid_amount as paid_amount_payments',
+            'payments.number as paid_number',
             'sales.price as price_sales',
             'sales.paid as paid_sales',
             'sales.payment_day as payment_day_sales',
