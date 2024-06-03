@@ -48,7 +48,10 @@ const fetch = async (req,res) =>{
   const result = await prisma.clients.findMany({
     where,
     skip:offset,
-    take:take
+    take:take,
+    include:{
+      sales:true
+    }
   })
 
   if (result.length === 0) {
