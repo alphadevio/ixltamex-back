@@ -43,7 +43,6 @@ const fetch = async (req,res) =>{
         }, apples: true
       }
     })
-
     if (result.length === 0) {
       return res.status(200).send({result:[], message:"Empty"})
     }
@@ -110,57 +109,46 @@ const pdfmake = async (req, res) => {
   try{
     if(id_client === 0){
       result = await prisma.lots.findMany({
-        where: {
-          id: id_lot,
-          deleted: 0,
-        },
-        include: {
-          sales: {
-            where: {
-              deleted: 0,
-            },
-            include: {
-              payments: {
-                where: {
-                  deleted: 0,
-                },
-                include: {
-                  transactions: {
-                    where: {
-                      deleted: 0,
-                    },
-                  },
-                },
-              },
-              clients: {
-                where: {
-                  deleted: 0,
-                },
-              },
-            },
-          },
-          apples: {
-            where: {
-              deleted: 0,
-            },
-          },
-        },
-      });
-    } else if( id_lot === 0 ) {
-      result = await prisma.lots.findMany({
         where:{
-          deleted:0
+          id: id_lot,
+          deleted:{
+            not:1
+          }
         }, include: {
           sales:{
-            where: {
-              deleted: 0
-            },
             include:{
               payments:{
                 include:{
                   transactions:true
                 }
               }, clients:true
+            }, where: {
+              deleted:{
+                not:1
+              }
+            }
+          }, apples: true
+        }
+      })
+    } else if( id_lot === 0 ) {
+      result = await prisma.lots.findMany({
+        where:{
+          deleted:{
+            not:1
+          }
+        }, include: {
+          sales:{
+            include:{
+              payments:{
+                include:{
+                  transactions: true
+                },
+              }, clients: true
+            }, where: {
+              deleted: {
+                not: 1
+              },
+              id_client: id_client
             }
           }, apples: true
         }
