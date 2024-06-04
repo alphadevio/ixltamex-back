@@ -50,14 +50,6 @@ const fetch = async (req,res) =>{
   } else if( id_lot === 0 ) {
     const result = await prisma.lots.findMany({
       where:{
-        sales:{
-          clients:{
-            id:id_client
-          },
-          deleted:{
-            not:1
-          }
-        },
         deleted:{
           not:1
         }
@@ -66,17 +58,14 @@ const fetch = async (req,res) =>{
           include:{
             payments:{
               include:{
-                transactions:true
-              }
-            }, clients:{
-              where:{
-                id:id_client
-              }
-            }
+                transactions: true
+              },
+            }, clients: true
           }, where: {
-            deleted:{
-              not:1
-            }
+            deleted: {
+              not: 1
+            },
+            id_client: id_client
           }
         }, apples: true
       }
