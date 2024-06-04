@@ -128,9 +128,7 @@ const pdfmake = async (req, res) => {
         where:{
           sales:{
             is:{
-              clients:{
-                id:id_client
-              },
+              id_client:id_client,
               deleted:0
             }
           },
