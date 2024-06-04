@@ -119,6 +119,8 @@ const pdfmake = async (req, res) => {
                   transactions:true
                 }
               }, clients:true
+            }, where:{
+              deleted:0
             }
           }, apples: true
         }
@@ -141,6 +143,8 @@ const pdfmake = async (req, res) => {
                   transactions:true
                 }
               }, clients:true
+            }, where:{
+              deleted:0
             }
           }, apples: true
         }
