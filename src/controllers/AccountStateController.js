@@ -106,7 +106,7 @@ const pdfmake = async (req, res) => {
         where:{
           id: id_lot,
           sales:{
-            is:{
+            where:{
               deleted:0
             }
           },
@@ -127,7 +127,7 @@ const pdfmake = async (req, res) => {
       result = await prisma.lots.findMany({
         where:{
           sales:{
-            is:{
+            where:{
               id_client:id_client,
               deleted:0
             }
