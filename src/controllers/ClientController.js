@@ -167,6 +167,16 @@ const destroy = async (req,res) =>{
         id_client: client_id
       }
     })
+
+    await prisma.assets_users.updateMany({
+      data:{
+        id_client:null,
+        id_lot:null,
+        status:2
+      }, where:{
+        id_client: client_id
+      }
+    })
   
     return res.status(200).send({ message: "Client deleted succesfully" });
   } catch ( error ) {
