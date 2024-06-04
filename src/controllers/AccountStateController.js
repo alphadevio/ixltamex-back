@@ -22,42 +22,27 @@ const fetch = async (req,res) =>{
 
   if(id_client === 0){
     const result = await prisma.lots.findMany({
-      where: {
+      where:{
         id: id_lot,
-        deleted: 0,
-      },
-      include: {
-        sales: {
-          where: {
-            deleted: 0,
-          },
-          include: {
-            payments: {
-              where: {
-                deleted: 0,
-              },
-              include: {
-                transactions: {
-                  where: {
-                    deleted: 0,
-                  },
-                },
-              },
-            },
-            clients: {
-              where: {
-                deleted: 0,
-              },
-            },
-          },
-        },
-        apples: {
-          where: {
-            deleted: 0,
-          },
-        },
-      },
-    });
+        deleted:{
+          not:1
+        }
+      }, include: {
+        sales:{
+          include:{
+            payments:{
+              include:{
+                transactions:true
+              }
+            }, clients:true
+          }, where: {
+            deleted:{
+              not:1
+            }
+          }
+        }, apples: true
+      }
+    })
 
     if (result.length === 0) {
       return res.status(200).send({result:[], message:"Empty"})
@@ -84,7 +69,15 @@ const fetch = async (req,res) =>{
               include:{
                 transactions:true
               }
-            }, clients:true
+            }, clients:{
+              where:{
+                id:id_client
+              }
+            }
+          }, where: {
+            deleted:{
+              not:1
+            }
           }
         }, apples: true
       }
