@@ -110,18 +110,33 @@ const pdfmake = async (req, res) => {
         include: {
           sales: {
             where: {
-              deleted: 0
+              deleted: 0,
             },
             include: {
               payments: {
+                where: {
+                  deleted: 0,
+                },
                 include: {
-                  transactions: true,
+                  transactions: {
+                    where: {
+                      deleted: 0,
+                    },
+                  },
                 },
               },
-              clients: true,
+              clients: {
+                where: {
+                  deleted: 0,
+                },
+              },
             },
           },
-          apples: true,
+          apples: {
+            where: {
+              deleted: 0,
+            },
+          },
         },
       });
     } else if( id_lot === 0 ) {
