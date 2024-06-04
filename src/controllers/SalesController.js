@@ -24,10 +24,12 @@ const save = async (req, res) => {
     
     let payment_occurrences;
     
-    if (sale.frequency_type === "monthly") {
-      payment_occurrences = monthlyPayments(sale.payment_day, sale.frequency_amount);
-    } else {
-      payment_occurrences = weeklyPayments(sale.frequency_type, sale.payment_weekday, sale.frequency_amount);
+    if(sale.frequency_type !== 'unique'){
+      if (sale.frequency_type === "monthly") {
+        payment_occurrences = monthlyPayments(sale.payment_day, sale.frequency_amount);
+      } else {
+        payment_occurrences = weeklyPayments(sale.frequency_type, sale.payment_weekday, sale.frequency_amount);
+      }
     }
     
     const amount_to_pay_after_first_payment = parseFloat(sale.price) - parseFloat(sale.first_payment)
