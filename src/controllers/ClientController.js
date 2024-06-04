@@ -124,8 +124,8 @@ const destroy = async (req,res) =>{
     console.log('VETNAS DEL CLIENTE',ventasDelCliente)
 
     for(i in ventasDelCliente){
-      if(parseFloat(ventasDelCliente[i].paid) !== parseFloat(ventasDelCliente[i].price)){
-        const response = await prisma.lots.updateMany({
+      if(parseFloat(ventasDelCliente[i].paid).toFixed(2) !== parseFloat(ventasDelCliente[i].price).toFixed(2)){
+        await prisma.lots.updateMany({
           data:{
             sold:0
           }, where:{
@@ -134,7 +134,6 @@ const destroy = async (req,res) =>{
             }, deleted:{not:null}
           }
         })
-        console.log('RESPONSE',response)
       }
     }
 
