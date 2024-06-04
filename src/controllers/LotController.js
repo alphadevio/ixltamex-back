@@ -179,6 +179,14 @@ const update = async (req,res) =>{
 
 const destroy = async (req,res) =>{
     let lot_id = req.body.id;
+
+    await prisma.assets_users.updateMany({
+        where:{
+            id_lot: lot_id
+        }, data:{
+            id_lot: null
+        }
+    })
   
     await prisma.lots.updateMany({
       where: {
