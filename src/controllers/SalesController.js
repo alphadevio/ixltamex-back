@@ -4,15 +4,17 @@ const prisma = new PrismaClient();
 const moment = require('moment-timezone');
 
 const save = async (req, res) => {
+  let counter = 0
   try {
+    
     const payload = req.body;
-
+    counter = 1
     const sale = new Sale(payload);
-
+    counter = 2
     const new_sale = await prisma.sales.create({
       data: sale,
     });
-
+    counter = 3
     await prisma.lots.update({
       data:{
         sold:1
@@ -21,9 +23,9 @@ const save = async (req, res) => {
         id:sale.id_lot
       }
     })
-    
+    counter = 4
     let payment_occurrences;
-    
+    counter = 5
     if(sale.frequency_type !== 'unique'){
       if (sale.frequency_type === "monthly") {
         payment_occurrences = monthlyPayments(sale.payment_day, sale.frequency_amount);
@@ -31,11 +33,11 @@ const save = async (req, res) => {
         payment_occurrences = weeklyPayments(sale.frequency_type, sale.payment_weekday, sale.frequency_amount);
       }
     }
-    
+    counter = 6
     const amount_to_pay_after_first_payment = parseFloat(sale.price) - parseFloat(sale.first_payment)
     console.log('AMOUNT TO PAY AFTER FIRST PAYMENT',amount_to_pay_after_first_payment)
     const payment_amount_per_occurrence = parseFloat(amount_to_pay_after_first_payment) / parseInt(sale.frequency_amount);
-
+    counter = 7
     if(sale.first_payment > 0) {
       const first_ever_payment = await prisma.payments.create({
         data: {
@@ -47,7 +49,7 @@ const save = async (req, res) => {
           number: 0
         }
       })
-
+      counter = 8
       await prisma.sales.update({
         data: {
           paid: sale.first_payment
@@ -55,7 +57,7 @@ const save = async (req, res) => {
           id: new_sale.id
         }
       })
-  
+      counter = 9
       await prisma.transactions.create({
         data:{
           amount: parseFloat(sale.first_payment),
@@ -64,7 +66,7 @@ const save = async (req, res) => {
         }
       })
     }
-    
+    counter = 10
     if(amount_to_pay_after_first_payment > 0) {
       const payment_data = payment_occurrences.map((payment_occurrence, index) => ({
         id_sale: new_sale.id,
@@ -75,7 +77,7 @@ const save = async (req, res) => {
         number: index + 1
       }));
       
-  
+      counter = 11
       await prisma.payments.createMany({
         data:payment_data
       })
@@ -87,7 +89,7 @@ const save = async (req, res) => {
     if (error.code === "P2002" && error.meta.target === "id_lot") {
       return res
         .status(400)
-        .json({ error: "Duplicate entry for lot ID detected" });
+        .json({ error: "Duplicate entry for lot ID detected", counter });
     }
 
     return res.status(500).send({ error: error.message });
