@@ -99,7 +99,12 @@ const generate = async (req,res) => {
 
       <div style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; height: 140px; background-color: #fff2bd; border-top-style: solid; border-top-width: 1px; border-color: #0f0f0f; border-bottom-style: solid; border-bottom-width: 1px;">
         <div style="flex: 1; border-bottom-width: 1px; border-bottom-style: solid; border-color: #0f0f0f; width: 100%; display:flex; align-items:end">
+         ${pago.payments.number === 0 ? `
+          <span>Enganche del lote ${pago.payments.sales.lots.lot_number}.</span>
+         ` : `
           <span>Pago #${pago.payments.number} del lote ${pago.payments.sales.lots.lot_number}.</span>
+         `}
+          
         </div>
         <div style="flex: 1;"></div>
       </div>
