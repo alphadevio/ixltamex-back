@@ -112,6 +112,11 @@ const pdfmake = async (req, res) => {
           id: id_lot,
           deleted:{
             not:1
+          },
+          sales:{
+            deleted:{
+              not:1
+            }
           }
         }, include: {
           sales:{
@@ -134,6 +139,11 @@ const pdfmake = async (req, res) => {
         where:{
           deleted:{
             not:1
+          },
+          sales:{
+            deleted:{
+              not:1
+            }, id_client:id_client
           }
         }, include: {
           sales:{
