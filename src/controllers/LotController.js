@@ -66,7 +66,8 @@ const fetch = async (req,res) =>{
 
     if(id_client) {
         where.sales = {
-            id_client: parseInt(id_client)
+            id_client: parseInt(id_client),
+            deleted:{not:1}
         }
     }
 
@@ -76,7 +77,9 @@ const fetch = async (req,res) =>{
         }
     }
 
-    const result = await prisma.lots.findMany({where,
+    console.log(where)
+
+    const result = await prisma.lots.findMany({
         include:{
             sales:{
                 include:{
@@ -98,6 +101,7 @@ const fetch = async (req,res) =>{
         },
         skip:offset,
         take:take,
+        where
     })
 
     if (result.length === 0) {

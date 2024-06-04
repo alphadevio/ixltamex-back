@@ -6,6 +6,7 @@ const moment = require('moment-timezone');
 const save = async (req, res) => {
   try {
     const payload = req.body;
+
     const sale = new Sale(payload);
 
     const new_sale = await prisma.sales.create({
@@ -30,6 +31,7 @@ const save = async (req, res) => {
     }
     
     const amount_to_pay_after_first_payment = parseFloat(sale.price) - parseFloat(sale.first_payment)
+    console.log('AMOUNT TO PAY AFTER FIRST PAYMENT',amount_to_pay_after_first_payment)
     const payment_amount_per_occurrence = parseFloat(amount_to_pay_after_first_payment) / parseInt(sale.frequency_amount);
 
     if(sale.first_payment > 0) {
@@ -61,19 +63,21 @@ const save = async (req, res) => {
       })
     }
     
-    const payment_data = payment_occurrences.map((payment_occurrence, index) => ({
-      id_sale: new_sale.id,
-      amount: payment_amount_per_occurrence,
-      payment_date: payment_occurrence,
-      paid: 0,
-      paid_amount: 0,
-      number: index + 1
-    }));
-    
-
-    await prisma.payments.createMany({
-      data:payment_data
-    })
+    if(amount_to_pay_after_first_payment > 0) {
+      const payment_data = payment_occurrences.map((payment_occurrence, index) => ({
+        id_sale: new_sale.id,
+        amount: payment_amount_per_occurrence,
+        payment_date: payment_occurrence,
+        paid: 0,
+        paid_amount: 0,
+        number: index + 1
+      }));
+      
+  
+      await prisma.payments.createMany({
+        data:payment_data
+      })
+    }
 
     return res.status(201).send({ new_sale, message: "Sale created" });
   } catch (error) {
