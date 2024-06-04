@@ -103,48 +103,42 @@ const pdfmake = async (req, res) => {
   try{
     if(id_client === 0){
       result = await prisma.lots.findMany({
-        where:{
+        where: {
           id: id_lot,
-          sales:{
-            where:{
-              deleted:0
-            }
+          deleted: 0,
+        },
+        include: {
+          sales: {
+            where: {
+              deleted: 0
+            },
+            include: {
+              payments: {
+                include: {
+                  transactions: true,
+                },
+              },
+              clients: true,
+            },
           },
-          deleted:0
-        }, include: {
-          sales:{
-            include:{
-              payments:{
-                include:{
-                  transactions:true
-                }
-              }, clients:true
-            }, where:{
-              deleted:0
-            }
-          }, apples: true
-        }
-      })
+          apples: true,
+        },
+      });
     } else if( id_lot === 0 ) {
       result = await prisma.lots.findMany({
         where:{
-          sales:{
-            where:{
-              id_client:id_client,
-              deleted:0
-            }
-          },
           deleted:0
         }, include: {
           sales:{
+            where: {
+              deleted: 0
+            },
             include:{
               payments:{
                 include:{
                   transactions:true
                 }
               }, clients:true
-            }, where:{
-              deleted:0
             }
           }, apples: true
         }
