@@ -414,7 +414,7 @@ const pdfmake = async (req, res) => {
           <tr>
             <td class="table-body">${new Date(result[i].sales.payments[j].transactions[k].created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
             <td class="table-body">${result[i].sales.payments[j].transactions[k].id}</td>
-            <td class="table-body">Importe ${result[i].sales.payments[j].transactions[k].id} ${result[i].sales.payments[j].transactions[k].refunded === 1 ? '(reembolsado) del enganche.' : 'del pago número ${result[i].sales.payments[j].number}.'}</td>
+            <td class="table-body">Importe ${result[i].sales.payments[j].transactions[k].id} ${result[i].sales.payments[j].transactions[k].refunded === 1 ? `(reembolsado) del enganche.' : 'del pago número ${result[i].sales.payments[j].number}.`}</td>
             <td class="table-body">$${(result[i].sales.payments[j].transactions[k].amount).toLocaleString()}</td>
           </tr>
           `;
