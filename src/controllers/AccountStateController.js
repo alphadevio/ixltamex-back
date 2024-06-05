@@ -304,6 +304,9 @@ const pdfmake = async (req, res) => {
           border-bottom-style: solid;
           border-bottom-color: rgb(30, 30, 30);
           height: 35px;
+          text-align: center;
+          align-items: center;
+          justify-content:center; 
         }
         .total{
           display: flex;
@@ -419,7 +422,7 @@ const pdfmake = async (req, res) => {
             ` : `
               <td class="table-body">Importe ${result[i].sales.payments[j].transactions[k].id} ${result[i].sales.payments[j].transactions[k].refunded === 1 ? '(reembolsado) ' : ''}del pago número ${result[i].sales.payments[j].number}.</td>
             `}
-            <td class="table-body">$${(result[i].sales.payments[j].transactions[k].amount).toLocaleString()}</td>
+            <td class="table-body">$${(parseFloat(result[i].sales.payments[j].transactions[k].amount)).toLocaleString()}</td>
           </tr>
           `;
         }
