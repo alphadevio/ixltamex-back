@@ -45,7 +45,11 @@ const fetch = async (req,res) =>{
               not:1
             }
           }
-        }, apples: true
+        }, apples: {
+          include:{
+            developments:true
+          }
+        }
       }
     })
     if (result.length === 0) {
@@ -77,7 +81,11 @@ const fetch = async (req,res) =>{
             },
             id_client: id_client
           }
-        }, apples: true
+        }, apples: {
+          include:{
+            developments:true
+          }
+        }
       }
     })
 
@@ -131,7 +139,11 @@ const pdfmake = async (req, res) => {
                 not:1
               }
             }
-          }, apples: true
+          }, apples: {
+            include:{
+              developments:true
+            }
+          }
         }
       })
     } else if( id_lot === 0 ) {
@@ -159,7 +171,11 @@ const pdfmake = async (req, res) => {
               },
               id_client: id_client
             }
-          }, apples: true
+          },apples: {
+            include:{
+              developments:true
+            }
+          }
         }
       })
     } else {
