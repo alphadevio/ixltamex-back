@@ -214,7 +214,7 @@ const pdfmake = async (req, res) => {
       <title>Document</title>
       <style>
         body {
-          background-color: #f7fafc;
+          background-color: white;
           font-family: Arial, sans-serif;
           position: relative;
           padding: 0;
@@ -328,10 +328,6 @@ const pdfmake = async (req, res) => {
       </style>
     </head>
     <body>
-      <div class="absolute-header">
-        <div class="triangle"></div>
-        <div class="header"></div>
-      </div>
       <div class="titles">
         <span class="fecha">FECHA: ${fechaFormateada}</span>
         <span class="ixtla">IXTLAMEX</span>
@@ -442,10 +438,6 @@ const pdfmake = async (req, res) => {
       </div>
     </div>
     <div class="titles" style="justify-content: center; font-weight: 700;">GRACIAS POR SU PREFERENCIA</div>
-    <div class="absolute-footer">
-      <div class="triangle-footer"></div>
-      <div class="footer" style="position: absolute; bottom: 0;"></div>
-    </div>
   </body>
   </html>
     `
@@ -459,11 +451,99 @@ const pdfmake = async (req, res) => {
       path: `./public/pdf/${dateName.toString()}.pdf`, 
       format: 'A4', 
       printBackground: true,
+      displayHeaderFooter:true,
+      margin: {
+        top: '140px',
+        bottom: '140px',
+        right: '0px',
+        left: '0px'
+      },
       headerTemplate: `
-        <div class="absolute-header"></div>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <style>
+          .triangle {
+            position: absolute;
+            width: 0px;
+            height: 0px;
+            background-color: transparent;
+
+            border-width: 150px;
+            border-style: solid;
+            border-color: transparent;
+
+            border-top-color: #ffbc0b;
+            border-top-width: 150px;
+            border-top-style: solid;
+
+            top: 0;
+            right: -150px;
+            z-index: 2;
+          }
+          .header {
+            width: 100%;
+            height: 80px;
+            background-color: #ffdb79;
+            -webkit-print-color-adjust: exact;
+            top: 0;
+            position: absolute;
+          }
+          .absolute-header {
+            width: 100%;
+            background-color: #f8fafc;
+            -webkit-print-color-adjust: exact;
+          }
+        </style>
+      </head>
+      <div class="absolute-header">
+        <div class="triangle"></div>
+        <div class="header"></div>
+      </div>
       `,
       footerTemplate: `
-        <div class="absolute-footer"></div>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <style>
+          .triangle-footer {
+            position: absolute;
+            width: 0px;
+            height: 0px;
+            background-color: transparent;
+
+            border-width: 150px;
+            border-style: solid;
+            border-color: transparent;
+
+            border-bottom-color: #ffbc0b;
+            border-bottom-width: 150px;
+            border-bottom-style: solid;
+
+            bottom: 0;
+            left: -150px;
+            z-index: 2;
+          }
+          .footer {
+            width: 100%;
+            height: 80px;
+            background-color: #ffdb79;
+            -webkit-print-color-adjust: exact;
+            bottom: 0;
+            position: absolute;
+          }
+          .absolute-footer {
+            width: 100%;
+            background-color: #f8fafc;
+          }
+        </style>
+      </head>
+      <div class="absolute-footer">
+        <div class="triangle-footer"></div>
+        <div class="footer"></div>
+      </div>
       `, });
     await browser.close();
 
