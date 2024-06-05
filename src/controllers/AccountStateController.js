@@ -226,7 +226,7 @@ const pdfmake = async (req, res) => {
         content += `
         <tr>
           <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;"></td>
-          <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;">Pago con id ${result[i].sales.payments[j].id}</td>
+          <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;">Pago de número ${result[i].sales.payments[j].number}</td>
           <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;"></td>
         </tr>
         `
