@@ -31,7 +31,6 @@ const save = async (req, res) => {
     }
     
     const amount_to_pay_after_first_payment = parseFloat(sale.price) - parseFloat(sale.first_payment)
-    console.log('AMOUNT TO PAY AFTER FIRST PAYMENT',amount_to_pay_after_first_payment)
     const payment_amount_per_occurrence = parseFloat(amount_to_pay_after_first_payment) / parseInt(sale.frequency_amount);
     
     if(sale.first_payment > 0) {
@@ -292,34 +291,40 @@ function weeklyPayments(interval, dayOfWeek, occurrences, timeZone='America/Mexi
 }
 
 function monthlyPayments(setDay, occurrences, timeZone='America/Mexico_City') {
-    const result = [];
-    let currentDate = moment().tz(timeZone);
-    let currentYear = currentDate.year();
-    let currentMonth = currentDate.month();
+  const result = [];
+  let currentDate = moment().tz(timeZone);
+  let currentYear = currentDate.year();
+  let currentMonth = currentDate.month();
 
-    for (let i = 0; i < occurrences; i++) {
-        let nextOccurrence = moment.tz([currentYear, currentMonth, setDay], timeZone);
+  for (let i = 0; i < occurrences; i++) {
+      let adjustedDay = setDay;
+      
+      // Adjust the day if it's 31 and the current month doesn't have 31 days
+      if (setDay > 28) {
+          const daysInMonth = moment.tz([currentYear, currentMonth], timeZone).daysInMonth();
+          if (setDay > daysInMonth) {
+              adjustedDay = daysInMonth;
+          }
+      }
 
-        if (nextOccurrence.month() !== currentMonth) {
-            // If set day doesn't exist in the current month, set to the last day of the month
-            nextOccurrence = moment.tz([currentYear, currentMonth + 1, 0], timeZone);
-        }
+      let nextOccurrence = moment.tz([currentYear, currentMonth, adjustedDay], timeZone);
 
-        result.push(nextOccurrence.valueOf()); // Add the date in milliseconds to result array
+      result.push(nextOccurrence.valueOf()); // Add the date in milliseconds to result array
 
-        // Move to the next month
-        if (currentMonth === 11) {
-            // If it's December, move to January of the next year
-            currentMonth = 0;
-            currentYear++;
-        } else {
-            // Otherwise, just move to the next month
-            currentMonth++;
-        }
-    }
+      // Move to the next month
+      if (currentMonth === 11) {
+          // If it's December, move to January of the next year
+          currentMonth = 0;
+          currentYear++;
+      } else {
+          // Otherwise, just move to the next month
+          currentMonth++;
+      }
+  }
 
-    return result;
+  return result;
 }
+
 
 
 module.exports.SalesController = { save, fetch, update, destroy }
