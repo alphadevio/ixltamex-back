@@ -34,11 +34,18 @@ const save = async (req, res) => {
     const payment_amount_per_occurrence = parseFloat(amount_to_pay_after_first_payment) / parseInt(sale.frequency_amount);
     
     if(sale.first_payment > 0) {
+      let payDay = Date.now()
+      if(sale.frequency_type !== 'unique'){
+        payDay = payment_occurrences[0]
+        payment_occurrences = adjustDates(payment_occurrences, sale.frequency_type)
+      }
+
+
       const first_ever_payment = await prisma.payments.create({
         data: {
           id_sale: new_sale.id,
           amount: sale.first_payment,
-          payment_date: Date.now(),
+          payment_date: payDay,
           paid: 1,
           paid_amount: sale.first_payment,
           number: 0
@@ -323,6 +330,28 @@ function monthlyPayments(setDay, occurrences, timeZone='America/Mexico_City') {
   }
 
   return result;
+}
+
+function adjustDates (dates, frequency_type) {
+  return dates.map(date => {
+    let momentDate = moment(date);
+
+    switch (frequency_type) {
+        case 'monthly':
+            momentDate.add(1, 'months');
+            break;
+        case 'weekly':
+            momentDate.add(1, 'weeks');
+            break;
+        case 'biweekly':
+            momentDate.add(2, 'weeks');
+            break;
+        default:
+            throw new Error('Invalid frequency type');
+    }
+
+    return momentDate.valueOf();
+});
 }
 
 
