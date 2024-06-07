@@ -105,7 +105,7 @@ const fetch = async (req,res) =>{
     })
 
     if (result.length === 0) {
-        return res.status(200).send({result:[], message:"Empty"})
+        return res.status(200).send({result:[], message:"Empty", count:0})
     }
 
     const count = await prisma.lots.count({where:{deleted:{not:1}}})

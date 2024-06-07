@@ -27,7 +27,7 @@ const fetch = async (req,res) =>{
     const result = await prisma.percentages.findMany()
 
     if (result.length === 0) {
-        return res.status(200).send({result:[], message:"Empty"})
+        return res.status(200).send({result:[], message:"Empty", count:0})
     }
 
     return res.status(200).send({result})
