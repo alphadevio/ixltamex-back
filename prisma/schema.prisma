@@ -67,7 +67,7 @@ model clients {
 model apples {
   id             Int           @id @default(autoincrement())
   name           String        @db.VarChar(100)
-  id_development Int?
+  id_development Int
   deleted        Int?          @default(0)
   developments   developments? @relation(fields: [id_development], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "apples_ibfk_1")
   lots           lots[]
