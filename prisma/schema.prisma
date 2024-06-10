@@ -78,7 +78,7 @@ model apples {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model lots {
   id           Int            @id @default(autoincrement())
-  id_apple     Int?
+  id_apple     Int
   lot_number   String?        @db.VarChar(10)
   area         Float
   top_width    Float
