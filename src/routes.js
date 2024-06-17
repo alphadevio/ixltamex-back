@@ -13,6 +13,7 @@ const { AssetRoutes } = require('./routes/AssetRoutes')
 const { AccountStateRoutes } = require('./routes/AccountStateRoutes')
 const { SpendingsRoutes } = require('./routes/SpendingsRoutes')
 const { CutRoutes } = require('./routes/CutRoutes')
+const { ProfileRoutes } = require('./routes/ProfileRoutes')
 
 const { verifyToken } = require('./middleware/verifyToken')
 
@@ -34,5 +35,6 @@ router.use('/asset', verifyToken, AssetRoutes)
 router.use('/account-state', verifyToken, AccountStateRoutes)
 router.use('/spendings', verifyToken, SpendingsRoutes)
 router.use('/cut', verifyToken, CutRoutes)
+router.use('/profile', verifyToken, ProfileRoutes)
 
 module.exports = router;
