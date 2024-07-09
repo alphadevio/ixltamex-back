@@ -50,7 +50,11 @@ const fetch = async (req,res) =>{
     skip:offset,
     take:take,
     include:{
-      sales:true
+      sales:{
+        where:{
+          deleted:0
+        }
+      }
     }
   })
 
