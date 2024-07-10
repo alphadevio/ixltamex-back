@@ -65,11 +65,11 @@ model clients {
 }
 
 model apples {
-  id             Int           @id @default(autoincrement())
-  name           String        @db.VarChar(100)
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(100)
   id_development Int
-  deleted        Int?          @default(0)
-  developments   developments? @relation(fields: [id_development], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "apples_ibfk_1")
+  deleted        Int?         @default(0)
+  developments   developments @relation(fields: [id_development], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "apples_ibfk_1")
   lots           lots[]
 
   @@index([id_development], map: "id_development")
@@ -85,11 +85,12 @@ model lots {
   bottom_width Float
   right_length Float
   left_length  Float
+  image        String?        @db.VarChar(50)
   deleted      Int?           @default(0)
   sold         Int?           @default(0)
   assets_users assets_users[]
-  apples       apples?        @relation(fields: [id_apple], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lots_ibfk_1")
-  sales        sales?
+  apples       apples         @relation(fields: [id_apple], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lots_ibfk_1")
+  sales        sales[]
 
   @@index([id_apple], map: "id_apple")
 }
@@ -97,7 +98,7 @@ model lots {
 model sales {
   id               Int        @id @default(autoincrement())
   id_client        Int
-  id_lot           Int        @unique(map: "id_lot")
+  id_lot           Int
   price            Decimal?   @default(0.00) @db.Decimal(10, 2)
   paid             Decimal?   @default(0.00) @db.Decimal(10, 2)
   created_at       DateTime?  @default(now()) @db.Timestamp(0)
@@ -113,6 +114,7 @@ model sales {
   lots             lots       @relation(fields: [id_lot], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sales_ibfk_2")
 
   @@index([id_client], map: "id_client")
+  @@index([id_lot], map: "id_lot")
 }
 
 model payments {
@@ -126,8 +128,6 @@ model payments {
   number       Int      @default(1)
   sales        sales?   @relation(fields: [id_sale], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "payments_ibfk_1")
 
-  transactions transactions[]
-
   @@index([id_sale], map: "id_sale")
 }
 
@@ -139,7 +139,6 @@ model transactions {
   created_at   DateTime @default(now()) @db.DateTime(0)
   payment_type String?  @db.VarChar(25)
   deleted      Int      @default(0)
-  payments     payments @relation(fields: [id_payment], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model assets_users {
@@ -160,10 +159,10 @@ model spendings {
   id             Int          @id @default(autoincrement())
   id_user        Int?
   id_development Int
-  description    String?
   ammount        Decimal      @db.Decimal(10, 2)
   date           Decimal?     @default(0) @db.Decimal(13, 0)
-  deleted        Int?         @default(0)
+  deleted        Boolean?     @default(false)
+  description    String?      @db.VarChar(250)
   user           users?       @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "spendings_ibfk_1")
   development    developments @relation(fields: [id_development], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "spendings_ibfk_2")
 

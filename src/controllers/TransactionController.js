@@ -8,6 +8,7 @@ const fetch = async (req, res) => {
     const offset = parseInt(req.query.offset);
     const limit = parseInt(req.query.limit)
     const searchTerm = req.query.where;
+    const date = req.query.date;
 
     let take = 999999
     if(limit) {
@@ -69,6 +70,13 @@ const fetch = async (req, res) => {
 
     if (id_client) {
         baseQuery = baseQuery.where('sales.id_client', parseInt(id_client));
+    }
+
+    if (date) {
+        const fecha = new Date(date)
+        fecha.setDate(fecha.getDate() + 1)
+        baseQuery = baseQuery.where('transactions.created_at', '>=', new Date(date));
+        baseQuery = baseQuery.where('transactions.created_at', '<=', fecha);
     }
 
     baseQuery = baseQuery.where('transactions.deleted', 0);
