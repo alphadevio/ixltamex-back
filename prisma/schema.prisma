@@ -163,6 +163,7 @@ model spendings {
   date           Decimal?     @default(0) @db.Decimal(13, 0)
   deleted        Boolean?     @default(false)
   description    String?      @db.VarChar(250)
+  authorized_by  String?      @db.VarChar(250)
   user           users?       @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "spendings_ibfk_1")
   development    developments @relation(fields: [id_development], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "spendings_ibfk_2")
 

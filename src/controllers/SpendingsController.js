@@ -22,7 +22,7 @@ const fetch = async (req,res) =>{
 
   let where = {
     deleted:{
-        not:1
+      not:true
     }
   }
 
@@ -90,6 +90,9 @@ const update = async (req,res) =>{
   }
   if (spending.description !== undefined && spending.description !== null) {
     data.description = spending.description
+  }
+  if (spending.authorized_by !== undefined && spending.authorized_by !== null) {
+    data.authorized_by = spending.authorized_by
   }
 
   const updated_spending = await prisma.spendings.update({
