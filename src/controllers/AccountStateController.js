@@ -28,8 +28,10 @@ const fetch = async (req,res) =>{
           not:1
         },
         sales:{
-          deleted:{
-            not:1
+          some:{
+            deleted:{
+              not:1
+            }
           }
         }
       }, include: {
