@@ -394,9 +394,9 @@ const pdfmake = async (req, res) => {
         </tr>
       `
 
-      paid += parseFloat(result[i].sales.paid)
-      total += parseFloat(result[i].sales.price)
-      for(j in result[i].sales.payments){
+      paid += parseFloat(result[i].sales[0].paid)
+      total += parseFloat(result[i].sales[0].price)
+      for(j in result[i].sales[0].payments){
         // content += `
         // <tr>
         //   <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;"></td>
@@ -410,9 +410,9 @@ const pdfmake = async (req, res) => {
         // `
 
         
-        
+        console.log(result[i].sales)
 
-        for(k in result[i].sales.payments[j].transactions){
+        for(k in result[i].sales[0].payments[j].transactions){
           // content += `
           // <tr>
           //   <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif;">${result[i].sales.payments[j].transactions[k].id} ${result[i].sales.payments[j].transactions[k].refunded === 1 ? '(reembolsado)' : ''}</td>
@@ -423,14 +423,14 @@ const pdfmake = async (req, res) => {
 
           content += `
           <tr>
-            <td class="table-body">${new Date(result[i].sales.payments[j].transactions[k].created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
-            <td class="table-body">${result[i].sales.payments[j].transactions[k].id}</td>
-            ${result[i].sales.payments[j].number === 0 ? `
-            <td class="table-body">Importe ${result[i].sales.payments[j].transactions[k].id} ${result[i].sales.payments[j].transactions[k].refunded === 1 ? '(reembolsado) ' : ''}del enganche.</td>
+            <td class="table-body">${new Date(result[i].sales[0].payments[j].transactions[k].created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+            <td class="table-body">${result[i].sales[0].payments[j].transactions[k].id}</td>
+            ${result[i].sales[0].payments[j].number === 0 ? `
+            <td class="table-body">Importe ${result[i].sales[0].payments[j].transactions[k].id} ${result[i].sales[0].payments[j].transactions[k].refunded === 1 ? '(reembolsado) ' : ''}del enganche.</td>
             ` : `
-              <td class="table-body">Importe ${result[i].sales.payments[j].transactions[k].id} ${result[i].sales.payments[j].transactions[k].refunded === 1 ? '(reembolsado) ' : ''}del pago número ${result[i].sales.payments[j].number}.</td>
+              <td class="table-body">Importe ${result[i].sales[0].payments[j].transactions[k].id} ${result[i].sales[0].payments[j].transactions[k].refunded === 1 ? '(reembolsado) ' : ''}del pago número ${result[i].sales[0].payments[j].number}.</td>
             `}
-            <td class="table-body">$${(parseFloat(result[i].sales.payments[j].transactions[k].amount)).toLocaleString()}</td>
+            <td class="table-body">$${(parseFloat(result[i].sales[0].payments[j].transactions[k].amount)).toLocaleString()}</td>
           </tr>
           `;
         }
