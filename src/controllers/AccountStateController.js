@@ -387,8 +387,8 @@ const pdfmake = async (req, res) => {
       content += `
       <table style="width: 80%; border-collapse: collapse;">
         <tr>
+          <th class="table-head">Num. de recibo</th>
           <th class="table-head">Fecha</th>
-          <th class="table-head">ID</th>
           <th class="table-head">Descripción</th>
           <th class="table-head">Importe</th>
         </tr>
@@ -423,19 +423,25 @@ const pdfmake = async (req, res) => {
 
           content += `
           <tr>
-            <td class="table-body">${new Date(result[i].sales[0].payments[j].transactions[k].created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
             <td class="table-body">${result[i].sales[0].payments[j].transactions[k].id}</td>
-            ${result[i].sales[0].payments[j].number === 0 ? `
-            <td class="table-body">Importe ${result[i].sales[0].payments[j].transactions[k].id} ${result[i].sales[0].payments[j].transactions[k].refunded === 1 ? '(reembolsado) ' : ''}del enganche.</td>
-            ` : `
-              <td class="table-body">Importe ${result[i].sales[0].payments[j].transactions[k].id} ${result[i].sales[0].payments[j].transactions[k].refunded === 1 ? '(reembolsado) ' : ''}del pago número ${result[i].sales[0].payments[j].number}.</td>
-            `}
+            <td class="table-body">${new Date(result[i].sales[0].payments[j].transactions[k].created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+            ${(result[i].sales[0].payments[j].paid === 1 && result[i].sales[0].payments[j].transactions.length === 1) ? `
+              <td class="table-body">Liquidación ${result[i].sales[0].payments[j].transactions[k].refunded === 1 ? '(reembolsada) ' : ''}del pago número ${result[i].sales[0].payments[j].number}.</td>
+              ` : `
+                ${result[i].sales[0].payments[j].number === 0 ? `
+                <td class="table-body">${result[i].sales[0].payments[j].transactions[k].id} ${result[i].sales[0].payments[j].transactions[k].refunded === 1 ? 'Enganche (reembolsado)' : 'Enganche'}.</td>
+                ` : `
+                  <td class="table-body">Abono ${result[i].sales[0].payments[j].transactions[k].id} ${result[i].sales[0].payments[j].transactions[k].refunded === 1 ? '(reembolsado) ' : ''}al pago número ${result[i].sales[0].payments[j].number}.</td>
+                `}
+              `}
             <td class="table-body">$${(parseFloat(result[i].sales[0].payments[j].transactions[k].amount)).toLocaleString()}</td>
           </tr>
           `;
         }
       }
-      content += `</table>`
+      content += `</table>
+        <span style="font-weight:500; font-size: 16px; width: 80%; text-align:right">Pagado $${parseFloat(result[i].sales[0].paid).toLocaleString()} de $${parseFloat(result[i].sales[0].price).toLocaleString()}</span>
+      `
     }
 
     // content += `

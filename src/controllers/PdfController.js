@@ -84,7 +84,7 @@ const generate = async (req,res) => {
       </div>
       <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2px;">
         <span style="font-family: sans-serif; font-weight: 600; font-size: x-large; flex: 2;">La suma de </span>
-        <span style="font-family: sans-serif; background-color: #FDE68A; font-weight: 600; font-size: x-large; padding: 5px; flex: 4;">${abonado}</span>
+        <span style="font-family: sans-serif; background-color: #FDE68A; font-weight: 600; font-size: x-large; padding: 5px; flex: 4;">$${parseFloat(abonado).toLocaleString()}</span>
         <span style="font-family: sans-serif; font-size: large; flex: 1;">Moneda</span>
         <span style="font-family: sans-serif; font-size: large; flex: 1; font-style: italic; color: red;">Pesos</span>
       </div>
