@@ -118,15 +118,16 @@ model sales {
 }
 
 model payments {
-  id           Int      @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   id_sale      Int?
-  amount       Decimal? @db.Decimal(10, 2)
-  payment_date Decimal? @db.Decimal(13, 0)
-  paid         Int?     @default(0)
-  paid_amount  Decimal? @default(0.00) @db.Decimal(10, 2)
-  deleted      Int      @default(0)
-  number       Int      @default(1)
-  sales        sales?   @relation(fields: [id_sale], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "payments_ibfk_1")
+  amount       Decimal?       @db.Decimal(10, 2)
+  payment_date Decimal?       @db.Decimal(13, 0)
+  paid         Int?           @default(0)
+  paid_amount  Decimal?       @default(0.00) @db.Decimal(10, 2)
+  deleted      Int            @default(0)
+  number       Int            @default(1)
+  sales        sales?         @relation(fields: [id_sale], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "payments_ibfk_1")
+  transactions transactions[]
 
   @@index([id_sale], map: "id_sale")
 }
@@ -139,6 +140,9 @@ model transactions {
   created_at   DateTime @default(now()) @db.DateTime(0)
   payment_type String?  @db.VarChar(25)
   deleted      Int      @default(0)
+  payments     payments @relation(fields: [id_payment], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "transactions_ibfk_1")
+
+  @@index([id_payment], map: "id_payment")
 }
 
 model assets_users {
@@ -163,7 +167,7 @@ model spendings {
   date           Decimal?     @default(0) @db.Decimal(13, 0)
   deleted        Boolean?     @default(false)
   description    String?      @db.VarChar(250)
-  authorized_by  String?      @db.VarChar(250)
+  authorized_by  String?      @db.VarChar(255)
   user           users?       @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "spendings_ibfk_1")
   development    developments @relation(fields: [id_development], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "spendings_ibfk_2")
 

@@ -60,12 +60,14 @@ const fetch = async (req,res) =>{
     const result = await prisma.lots.findMany({
       where:{
         deleted:{
-          not:1
+          not: 1
         },
         sales:{
-          deleted:{
-            not:1
-          }, id_client:id_client
+          some:{
+            deleted:{
+              not:1
+            }, id_client:id_client
+          }
         }
       }, include: {
         sales:{
@@ -122,8 +124,10 @@ const pdfmake = async (req, res) => {
             not:1
           },
           sales:{
-            deleted:{
-              not:1
+            some:{
+              deleted:{
+                not:1
+              }
             }
           }
         }, include: {
@@ -153,9 +157,11 @@ const pdfmake = async (req, res) => {
             not:1
           },
           sales:{
-            deleted:{
-              not:1
-            }, id_client:id_client
+            some:{
+              deleted:{
+                not:1
+              }, id_client:id_client
+            }
           }
         }, include: {
           sales:{
@@ -182,7 +188,7 @@ const pdfmake = async (req, res) => {
       return res.status(403).send({message:'Specify either id_lot or id_user'})
     }
 
-    const user = result[0].sales.clients
+    const user = result[0].sales[0].clients
 
     var hoy = new Date();
     var dia = hoy.getDate();
