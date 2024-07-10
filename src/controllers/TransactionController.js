@@ -73,9 +73,9 @@ const fetch = async (req, res) => {
     }
 
     if (date) {
-        const fecha = new Date(date)
+        const fecha = new Date.UTC(date)
         fecha.setDate(fecha.getDate() + 1)
-        baseQuery = baseQuery.where('transactions.created_at', '>=', new Date(date));
+        baseQuery = baseQuery.where('transactions.created_at', '>=', new Date.UTC(date));
         baseQuery = baseQuery.where('transactions.created_at', '<=', fecha);
     }
 
