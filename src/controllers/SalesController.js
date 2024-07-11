@@ -113,6 +113,14 @@ const save = async (req, res) => {
     
     const dateName = new Date().getTime()
 
+    await prisma.sales.update({
+      where:{
+        id: new_sale.id
+      }, data:{
+        file: `${dateName.toString()}.pdf`
+      }
+    })
+
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(content, { waitUntil: 'networkidle0' });
@@ -212,6 +220,8 @@ const fetch = async (req, res) => {
       sale.total_amount = totalAmount;
   
       sale.remaining = sale.total_amount - parseFloat(sale.paid);
+
+      sale.file = `${process.env.API_URL}/pdf/${sale.file}`
     });
 
     result.forEach((element, index) => {
