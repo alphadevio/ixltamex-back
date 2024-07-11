@@ -299,7 +299,9 @@ const destroy = async (req, res) => {
       sold:0
     }, where:{
       sales:{
-        id: id_sale
+        some:{
+          id: id_sale
+        }
       }
     }
   })
