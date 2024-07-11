@@ -158,7 +158,6 @@ const fetch = async (req, res) => {
     if(!offset){
       offset = 0
     }
-    console.log(offset)
 
     const whereCondition = {
       deleted: {
@@ -211,7 +210,7 @@ const fetch = async (req, res) => {
       skip:offset,
       take:take
     })
-  
+  //
     result.forEach(sale => {
       let totalAmount = 0;
       sale.payments.forEach(payment => {
@@ -564,7 +563,6 @@ function NumeroALetras(num) {
     letrasMonedaPlural: "pesos",
     letrasMonedaSingular: "peso"
   };
-  console.log('DATA',data)
 
   if (data.centavos > 0)
     data.letrasCentavos = "con " + data.centavos + " centavos";
