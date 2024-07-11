@@ -1,6 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 const { Spendings } = require("../models/Spendings");
+const twilio = require('twilio')
 const prisma = new PrismaClient();
+require('dotenv').config();
 
 const save = async (req,res) =>{
   const payload = req.body
@@ -119,5 +121,12 @@ const destroy = async (req,res) =>{
     return res.status(200).send({ message: "Spending deleted succesfully" });
 };
 
+const sms = async (req, res) => {
+  const client = new twilio(process.env.TWILIO_SID,process.env.TWILIO_TOKEN)
+  return client.messages.create({body:'Itxtlxtlxtlxamex', from:'+15005550006', to: '+523336623640'})
+    .then(message => console.log(message))
+    .catch(error => console.error(error))
+    
+}
 
-module.exports.SpendingsController = {save,fetch,update,destroy}
+module.exports.SpendingsController = {save,fetch,update,destroy, sms}

@@ -11,6 +11,7 @@ app.use(cors({ origin: '*' ,methods: '*', allowedHeaders: ['*'], requestHeaders:
 app.use('/pdf', express.static('./public/pdf'))
 app.use('/qr', express.static('./public/qr'))
 app.use('/img', express.static('./public/images'))
+app.use('/public', express.static('./public'))
 app.use("/api",router)
 app.listen(port, () => {
     const date = new Date();

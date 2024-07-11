@@ -26,7 +26,8 @@
     "nodemon": "^3.1.0",
     "numero-a-letras": "^1.0.6",
     "puppeteer": "^22.9.0",
-    "qrcode": "^1.5.3"
+    "qrcode": "^1.5.3",
+    "twilio": "^5.2.2"
   },
   "devDependencies": {
     "prisma": "^5.12.0"
