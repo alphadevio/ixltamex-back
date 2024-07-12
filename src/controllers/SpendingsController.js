@@ -5,6 +5,10 @@ const prisma = new PrismaClient();
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const QRCode = require('qrcode');
+const LabsMobileClient = require("labsmobile-sms/src/LabsMobileClient");
+const LabsMobileModelTextMessage = require("labsmobile-sms/src/LabsMobileModelTextMessage");
+const ParametersException = require("labsmobile-sms/src/Exception/ParametersException");
+const RestException = require("labsmobile-sms/src/Exception/RestException");
 
 const save = async (req,res) =>{
   const payload = req.body
@@ -125,11 +129,106 @@ const destroy = async (req,res) =>{
 };
 
 const sms = async (req, res) => {
-  const client = new twilio(process.env.TWILIO_SID,process.env.TWILIO_TOKEN)
-  return client.messages.create({body:'Itxtlxtlxtlxamex', from:'+15005550006', to: '+523336623640'})
-    .then(message => console.log(message))
-    .catch(error => console.error(error))
+  try {
+    const { userId } = req.params
+
+    const allUsers = await prisma.users.findMany({
+      where:{
+        deleted: 0,
+        profile_id: 1,
+        id:{
+          not: parseInt(userId)
+        }
+      }
+    })
+
+    let codigo = ''
+
+    while (true) {
+      codigo = (Math.floor(100000 + Math.random() * 900000)).toString();
+      const usedCode = await prisma.verification_codes.findFirst({
+        where:{
+          code: codigo, 
+        }
+      })
+      console.log(usedCode)
+      if(usedCode === null) {
+        break
+      }
+    }
+
+    const username = process.env.LABSMOBILE_USERNAME;
+    const token = process.env.LABSMOBILE_TOKEN;
+
+    const names = []
+
+    await prisma.verification_codes.create({
+      data:{
+        code: codigo,
+        used: 0,
+        date: Date.now()
+      }
+    })
+
+    for(user in allUsers){
+      const message = `Access code: ${codigo}`;
+      const phone = [allUsers[user].phone_number];
+
+      const clientLabsMobile = new LabsMobileClient(username, token);
+      const bodySms = new LabsMobileModelTextMessage(phone, message);
+
+      //bodySms.scheduled = "2024-07-12 13:58:00";
+      bodySms.long = 1;
+
+      //await clientLabsMobile.sendSms(bodySms); DESCOMENTAR ESTO EN CUANTO TENGAMOS LA CUENTA PRO
+
+      names.push(allUsers[user].name)
+    }
     
+    return res.status(200).send({message:'Success', names})
+  } catch (error) {
+    if (error instanceof ParametersException) {
+      console.log(error.message);
+      return res.status(500).send({message:'Fail', error: error.message})
+    } else if (error instanceof RestException) {
+      console.log(`Error: ${error.status} - ${error.message}`);
+      return res.status(500).send({message:'Fail', error: error.message})
+    } else {
+      return res.status(500).send({message:'Fail', error: error.message})
+    }
+  }
+}
+
+const verifySMS = async (req, res) => {
+  try{
+    const { code } = req.params
+
+    const verifier = await prisma.verification_codes.findFirst({
+      where:{
+        used:0,
+        code:code
+      }
+    })
+    
+    if(!verifier) return res.status(401).send({message:'The code does not exist, or has already been used'})
+
+    const now = Date.now()
+
+    if(now < verifier.date + 600000) {
+      await prisma.verification_codes.update({
+        where:{
+          id: verifier.id
+        }, data: {
+          used: 1
+        }
+      })
+      return res.status(200).send({message:'Success'})
+    } else {
+      return res.status(400).send({message:'Fail, code was sent more than 10 minutes ago'})
+    }
+  } catch (error) {
+    return res.status(500).send({message:'Internal server error', error: error.message})
+  }
 }
 
 const generatePDF = async (req, res) => {
@@ -428,4 +527,4 @@ function NumeroALetras(num) {
     );
 } //NumeroALetras()
 
-module.exports.SpendingsController = {save,fetch,update,destroy, sms, generatePDF}
+module.exports.SpendingsController = {save,fetch,update,destroy, sms, generatePDF, verifySMS}

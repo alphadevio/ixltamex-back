@@ -186,3 +186,10 @@ model cuts {
 
   @@index([id_development], map: "id_development")
 }
+
+model verification_codes {
+  id        Int       @id @default(autoincrement())
+  code      String    @db.VarChar(6)
+  used      Int       
+  date      Decimal?  @db.Decimal(13, 0)
+}
