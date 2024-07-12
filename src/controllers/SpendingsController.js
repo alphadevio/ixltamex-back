@@ -12,8 +12,8 @@ const save = async (req,res) =>{
 
   try {
     const new_spending = await prisma.spendings.create({data:spending})
-    const pdfURL = await generatePDF(new_spending.id)
-    return res.status(201).send({message:"Spending registered succesfully",result:new_spending, pdfURL})
+
+    return res.status(201).send({message:"Spending registered succesfully",result:new_spending})
   } catch (error) {
     console.log(error);
     return res.status(500).send({error:error.message})
@@ -132,8 +132,9 @@ const sms = async (req, res) => {
     
 }
 
-const generatePDF = async (spendingId) => {
+const generatePDF = async (req, res) => {
   try{
+    const {spendingId} = req.params
     const spending = await prisma.spendings.findFirst({
       where:{
         id: parseInt(spendingId), 
@@ -233,7 +234,7 @@ const generatePDF = async (spendingId) => {
     await page.pdf({ path: `./public/pdf/${dateName.toString()}.pdf`, format: 'A4', printBackground: true });
     await browser.close();
 
-    return data
+    return res.status(200).send({ message: 'Exito', result: { pdfUrl: data } });
 
   } catch (error) {
     throw error
@@ -427,4 +428,4 @@ function NumeroALetras(num) {
     );
 } //NumeroALetras()
 
-module.exports.SpendingsController = {save,fetch,update,destroy, sms}
+module.exports.SpendingsController = {save,fetch,update,destroy, sms, generatePDF}
