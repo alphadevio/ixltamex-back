@@ -1,6 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
 const { Spendings } = require("../models/Spendings");
-const twilio = require('twilio')
 const prisma = new PrismaClient();
 require('dotenv').config();
 const puppeteer = require('puppeteer');
@@ -180,7 +179,7 @@ const sms = async (req, res) => {
       //bodySms.scheduled = "2024-07-12 13:58:00";
       bodySms.long = 1;
 
-      //await clientLabsMobile.sendSms(bodySms); DESCOMENTAR ESTO EN CUANTO TENGAMOS LA CUENTA PRO
+      await clientLabsMobile.sendSms(bodySms);
 
       names.push(allUsers[user].name)
     }
