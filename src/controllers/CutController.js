@@ -32,7 +32,7 @@ const getCut = async (req,res) =>{
         },
 
         deleted:{
-          not:true
+          not:1
         }
       }
     })
@@ -72,7 +72,7 @@ const getCut = async (req,res) =>{
           lte:milisLastDay
         },
         deleted:{
-          not:1
+          not:true
         }, id_development:id_development
       }, include:{
         user:true
