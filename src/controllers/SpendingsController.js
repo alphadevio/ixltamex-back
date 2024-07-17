@@ -209,7 +209,7 @@ const verifySMS = async (req, res) => {
       }
     })
     
-    if(!verifier) return res.status(401).send({message:'The code does not exist, or has already been used'})
+    if(!verifier) return res.status(200).send({message:'The code does not exist, or has already been used'})
 
     const now = Date.now()
 
