@@ -32,7 +32,7 @@ const getCut = async (req,res) =>{
         },
 
         deleted:{
-          not:1
+          not:true
         }
       }
     })
