@@ -170,7 +170,7 @@ const sms = async (req, res) => {
     })
 
     for(user in allUsers){
-      const message = `Access code: ${codigo}`;
+      const message = `Se quiere realizar una operacion en ixtlamex. El codigo es: ${codigo}`;
       const phone = [allUsers[user].phone_number];
 
       const clientLabsMobile = new LabsMobileClient(username, token);
