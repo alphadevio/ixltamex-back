@@ -120,7 +120,7 @@ const destroy = async (req,res) =>{
         id: id,
       },
       data: {
-        deleted: 1,
+        deleted: true,
       },
     });
   
@@ -130,6 +130,11 @@ const destroy = async (req,res) =>{
 const sms = async (req, res) => {
   try {
     const { userId } = req.params
+    const { concept } = req.body
+
+    if(!concept) {
+      concept = 'no especificado'
+    }
 
     const allUsers = await prisma.users.findMany({
       where:{
@@ -170,7 +175,7 @@ const sms = async (req, res) => {
     })
 
     for(user in allUsers){
-      const message = `Se quiere realizar una operacion en ixtlamex. El codigo es: ${codigo}`;
+      const message = `Se quiere realizar una operacion en ixtlamex, por el concepto ${concept}. El codigo es: ${codigo}`;
       const phone = [allUsers[user].phone_number];
 
       const clientLabsMobile = new LabsMobileClient(username, token);
