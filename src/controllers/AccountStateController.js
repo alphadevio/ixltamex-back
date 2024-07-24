@@ -321,7 +321,7 @@ const pdfmake = async (req, res) => {
           flex-direction: row;
           padding: 20px;
           background-color: lightgray;
-          width: 40%;
+          width: 60%;
           align-items: center;
           justify-content: center;
         }
@@ -454,8 +454,8 @@ const pdfmake = async (req, res) => {
     content += `
     <div class="titles" style="justify-content: end;">
       <div class="total">
-        <span class="total-text">TOTAL</span>
-        <span class="total-text">$${total.toLocaleString()}</span>
+        <span class="total-text">TOTAL PAGADO</span>
+        <span class="total-text">$${paid.toLocaleString()} de $${total.toLocaleString()}</span>
       </div>
     </div>
     <div class="titles" style="justify-content: center; font-weight: 700;">GRACIAS POR SU PREFERENCIA</div>
