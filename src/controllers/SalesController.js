@@ -16,6 +16,7 @@ const save = async (req, res) => {
         lots:true
       }
     });
+
     await prisma.lots.update({
       data:{
         sold:1
@@ -24,6 +25,10 @@ const save = async (req, res) => {
         id:sale.id_lot
       }
     })
+
+    const extra_payment_odd_number = parseFloat(payload.price) - (parseFloat(payload.amount_per_payment) * parseFloat(payload.frequency_amount)) - parseFloat(sale.first_payment)
+
+    if(extra_payment_odd_number > 0) sale.frequency_amount ++
     
     let payment_occurrences;
     
@@ -35,10 +40,8 @@ const save = async (req, res) => {
       }
     }
     
-    const amount_to_pay_after_first_payment = parseFloat(sale.price) - parseFloat(sale.first_payment)
-    const payment_amount_per_occurrence = parseFloat(amount_to_pay_after_first_payment) / parseInt(sale.frequency_amount);
-
-    
+    // const amount_to_pay_after_first_payment = parseFloat(sale.price) - parseFloat(sale.first_payment)
+    // const payment_amount_per_occurrence = parseFloat(amount_to_pay_after_first_payment) / parseInt(sale.frequency_amount);
 
     let content = `
     <div style="display:flex; flex-direction:column; gap:10px; width: 100%; padding:40px;">
@@ -87,10 +90,10 @@ const save = async (req, res) => {
       })
     }
     
-    if(amount_to_pay_after_first_payment > 0) {
+    if(parseFloat(payload.amount_per_payment) > 0) {
       const payment_data = payment_occurrences.map((payment_occurrence, index) => ({
         id_sale: new_sale.id,
-        amount: payment_amount_per_occurrence,
+        amount: parseFloat(payload.amount_per_payment),
         payment_date: payment_occurrence,
         paid: 0,
         paid_amount: 0,
@@ -101,7 +104,23 @@ const save = async (req, res) => {
         data:payment_data
       })
 
-      content += `<span>No. de pagos ${sale.frequency_type === 'monthly' ? 'mensuales' : sale.frequency_type === 'biweekley' ? 'quincenales' : 'semanales'}: ${payment_occurrences.length} pagos de $${parseFloat(payment_amount_per_occurrence).toLocaleString()} (${NumeroALetras(parseFloat(payment_amount_per_occurrence))}<span style-"font-weight:600">mxn</span>)</span>`
+      content += `<span>No. de pagos ${sale.frequency_type === 'monthly' ? 'mensuales' : sale.frequency_type === 'biweekley' ? 'quincenales' : 'semanales'}: ${payment_occurrences.length} pagos de $${parseFloat(payload.amount_per_payment).toLocaleString()} (${NumeroALetras(parseFloat(payload.amount_per_payment))}<span style-"font-weight:600">mxn</span>)</span>`
+    }
+
+    if(extra_payment_odd_number > 0) {
+      const last_payment = await prisma.payments.findFirst({
+        orderBy:{
+          id:'desc'
+        }
+      })
+
+      await prisma.payments.update({
+        where:{
+          id: last_payment.id
+        }, data:{
+          amount: extra_payment_odd_number
+        }
+      })
     }
 
     content += `
@@ -199,6 +218,8 @@ const fetch = async (req, res) => {
         }}
       ]
     }
+
+    console.log(whereCondition)
 
     let result = await prisma.sales.findMany({
       include: {
