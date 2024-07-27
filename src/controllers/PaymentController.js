@@ -90,140 +90,147 @@ const pay = async (req, res) => {
 };
 
 const payBulk = async(req, res) => {
-    try{
-        const { id_payments, paid_amount, payment_type } = req.body
+    try {
+        const { id_payments, paid_amount, payment_type } = req.body;
 
-        if(payment_type !== 'efectivo' && payment_type !== 'transferencia' && payment_type !== 'cheque' && payment_type !== 'otro')
+        if(payment_type !== 'efectivo' && payment_type !== 'transferencia' && payment_type !== 'cheque' && payment_type !== 'otro') {
             return res.status(402).json({ error: "payment_type_error.", message: `El método de pago no es válido. Método especificado: ${payment_type}` });
+        }
 
-        let total_payed_amout = paid_amount
+        let total_payed_amount = paid_amount;
 
-        let id_sale = -1
+        let id_sale = -1;
 
-        for(id in id_payments){
-            if(total_payed_amout <= 0) break;
+        for(let id of id_payments) {
+            if(total_payed_amount <= 0) break;
 
             const old_payment = await prisma.payments.findFirst({
-                where:{
-                    id:id_payments[id]
+                where: {
+                    id: id
                 }
-            })
+            });
 
-            id_sale = old_payment.id_sale
+            if (!old_payment) {
+                continue;
+            }
 
-            if(old_payment.paid_amount > 0) { //SWITCH IF PAYMENT ALREADY HAD MONEY DEPOSITED IN IT
-                const difference = old_payment.amount - old_payment.paid_amount
-                if(total_payed_amout >= difference){ //INTERNAL SWITCH IF THE AMOUNT PAYED IS GREATER THAN THE PAYMENT ITSELF
+            id_sale = old_payment.id_sale;
+
+            if(old_payment.paid_amount > 0) {
+                const difference = old_payment.amount - old_payment.paid_amount;
+                if(total_payed_amount >= difference) {
                     await prisma.payments.update({
-                        where:{
+                        where: {
                             id: old_payment.id
                         }, data: {
                             paid_amount: old_payment.amount,
                             paid: 1
                         }
-                    })
+                    });
 
-                    total_payed_amout = total_payed_amout - difference
+                    total_payed_amount -= difference;
 
                     await prisma.transactions.create({
-                        data:{
+                        data: {
                             amount: parseFloat(difference),
                             id_payment: old_payment.id,
                             payment_type: payment_type
                         }
-                    })
-
-                } else { //INTERNAL SWITCH IF THE AMOUNT PAYED IS NOT GREATER THAN THE PAYMENT ITSELF
+                    });
+                } else {
                     await prisma.payments.update({
-                        where:{
+                        where: {
                             id: old_payment.id
                         }, data: {
-                            paid_amount: old_payment.paid_amount + total_payed_amout,
+                            paid_amount: old_payment.paid_amount + total_payed_amount,
                             paid: 0
                         }
-                    })
-
-                    total_payed_amout = 0
+                    });
 
                     await prisma.transactions.create({
-                        data:{
-                            amount: parseFloat(total_payed_amout),
+                        data: {
+                            amount: parseFloat(total_payed_amount),
                             id_payment: old_payment.id,
                             payment_type: payment_type
                         }
-                    })
+                    });
+
+                    total_payed_amount = 0;
                 }
-            } else { // SWITCH IF PAYMENT HAS NO MONEY DEPOSITED ON IT
-                if(total_payed_amout >= old_payment.amount){ //INTERNAL SWITCH IF THE AMOUNT PAYED IS GREATER THAN THE PAYMENT ITSELF
+            } else {
+                if(total_payed_amount >= old_payment.amount) {
                     await prisma.payments.update({
-                        where:{
+                        where: {
                             id: old_payment.id
                         }, data: {
                             paid_amount: old_payment.amount,
                             paid: 1
                         }
-                    })
+                    });
 
-                    total_payed_amout = total_payed_amout - old_payment.amount
+                    total_payed_amount -= old_payment.amount;
 
                     await prisma.transactions.create({
-                        data:{
+                        data: {
                             amount: parseFloat(old_payment.amount),
                             id_payment: old_payment.id,
                             payment_type: payment_type
                         }
-                    })
-                } else { //INTERNAL SWITCH IF THE AMOUNT PAYED IS NOT GREATER THAN THE PAYMENT ITSELF
+                    });
+                } else {
                     await prisma.payments.update({
-                        where:{
+                        where: {
                             id: old_payment.id
                         }, data: {
-                            paid_amount: total_payed_amout,
+                            paid_amount: total_payed_amount,
                             paid: 0
                         }
-                    })
-
-                    total_payed_amout = 0
+                    });
 
                     await prisma.transactions.create({
-                        data:{
-                            amount: parseFloat(total_payed_amout),
+                        data: {
+                            amount: parseFloat(total_payed_amount),
                             id_payment: old_payment.id,
                             payment_type: payment_type
                         }
-                    })
+                    });
+
+                    total_payed_amount = 0;
                 }
             }
         }
 
         if(id_sale === -1) {
-            return res.status(500).send({message:'Error finding id_sale', error:error.message})
+            return res.status(500).send({message: 'Error finding id_sale'});
         }
 
         const effected_sale = await prisma.sales.findFirst({
             where: {
                 id: id_sale
             }
-        })
+        });
 
-        await prisma.sales.update({
-            where:{
-                id:id_sale
-            }, data: { 
-                paid: effected_sale.paid + paid_amount, 
-            }
-        })
-        
-        if(total_payed_amout > 0) {
-            return res.status(200).send({message:'Success. Warning, the payment was overpayed. Be wary not to loose money.'})
-        } else {
-            return res.status(200).send({message:'Success.'})
+        if (effected_sale) {
+            await prisma.sales.update({
+                where: {
+                    id: id_sale
+                }, data: { 
+                    paid: effected_sale.paid + paid_amount, 
+                }
+            });
         }
 
-    } catch ( error ) {
-        return res.status(500).send({message:'Internal server error', error:error.message})
+        if(total_payed_amount > 0) {
+            return res.status(200).send({message: 'Success. Warning, the payment was overpaid. Be wary not to lose money.'});
+        } else {
+            return res.status(200).send({message: 'Success.'});
+        }
+
+    } catch (error) {
+        return res.status(500).send({message: 'Internal server error', error: error.message});
     }
-}
+};
+
 
 module.exports.PaymentController = { pay, payBulk }
 
