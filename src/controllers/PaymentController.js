@@ -186,14 +186,15 @@ const payBulk = async(req, res) => {
                 id: id_sale
             }
         });
-
+//
         if (effected_sale) {
             if(effected_sale.paid && effected_sale.paid > 0){
+                console.log(effected_sale.paid + paid_amount)
                 await prisma.sales.update({
                     where: {
                         id: id_sale
                     }, data: { 
-                        paid: effected_sale.paid + paid_amount, 
+                        paid: parseFloat(effected_sale.paid) + parseFloat(paid_amount), 
                     }
                 });
             } else {
@@ -201,7 +202,7 @@ const payBulk = async(req, res) => {
                     where: {
                         id: id_sale
                     }, data: { 
-                        paid: paid_amount, 
+                        paid: parseFloat(paid_amount)
                     }
                 });
             }
