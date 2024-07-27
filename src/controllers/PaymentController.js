@@ -129,14 +129,6 @@ const payBulk = async(req, res) => {
                     });
 
                     total_payed_amount -= difference;
-
-                    await prisma.transactions.create({
-                        data: {
-                            amount: parseFloat(difference),
-                            id_payment: old_payment.id,
-                            payment_type: payment_type
-                        }
-                    });
                 } else {
                     await prisma.payments.update({
                         where: {
@@ -144,14 +136,6 @@ const payBulk = async(req, res) => {
                         }, data: {
                             paid_amount: old_payment.paid_amount + total_payed_amount,
                             paid: 0
-                        }
-                    });
-
-                    await prisma.transactions.create({
-                        data: {
-                            amount: parseFloat(total_payed_amount),
-                            id_payment: old_payment.id,
-                            payment_type: payment_type
                         }
                     });
 
@@ -169,14 +153,6 @@ const payBulk = async(req, res) => {
                     });
 
                     total_payed_amount -= old_payment.amount;
-
-                    await prisma.transactions.create({
-                        data: {
-                            amount: parseFloat(old_payment.amount),
-                            id_payment: old_payment.id,
-                            payment_type: payment_type
-                        }
-                    });
                 } else {
                     await prisma.payments.update({
                         where: {
@@ -187,18 +163,19 @@ const payBulk = async(req, res) => {
                         }
                     });
 
-                    await prisma.transactions.create({
-                        data: {
-                            amount: parseFloat(total_payed_amount),
-                            id_payment: old_payment.id,
-                            payment_type: payment_type
-                        }
-                    });
-
                     total_payed_amount = 0;
                 }
             }
         }
+
+
+        await prisma.transactions.create({
+            data: {
+                amount: parseFloat(paid_amount),
+                id_payment: id_payments[0],
+                payment_type: payment_type
+            }
+        });
 
         if(id_sale === -1) {
             return res.status(500).send({message: 'Error finding id_sale'});
