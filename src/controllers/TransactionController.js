@@ -22,6 +22,7 @@ const fetch = async (req, res) => {
             'transactions.created_at',
             'transactions.refunded',
             'transactions.id_payment',
+            'transactions.payment_type',
             'payments.id as id_payment',
             'payments.amount as amount_payment',
             'payments.payment_date',
