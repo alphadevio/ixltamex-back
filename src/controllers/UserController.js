@@ -140,7 +140,7 @@ const save = async (req, res) => {
     console.log(data)
     await prisma.users.update({
       where: {
-        id: id,
+        id: parseInt(id),
       },
       data: data,
     });
