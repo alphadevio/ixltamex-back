@@ -6,7 +6,7 @@ const { verifyToken } = require('../middleware/verifyToken')
 
 UserRouter.get('/', verifyToken, UserController.fetch)
 UserRouter.post('/', verifyToken, UserController.save)
-UserRouter.put('/', verifyToken, UserController.update)
+UserRouter.put('/:id', verifyToken, UserController.update)
 UserRouter.delete('/', verifyToken, UserController.destroy)
 UserRouter.post('/login', UserController.login)
 

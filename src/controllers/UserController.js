@@ -109,6 +109,7 @@ const save = async (req, res) => {
   
   const update = async (req, res) => {
     let payload = req.body;
+    let { id } = req.params
     const user = new User(payload);
     let data = {};
 
@@ -139,7 +140,7 @@ const save = async (req, res) => {
     console.log(data)
     await prisma.users.update({
       where: {
-        id: user.id,
+        id: id,
       },
       data: data,
     });
