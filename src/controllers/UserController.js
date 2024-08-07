@@ -177,7 +177,7 @@ const save = async (req, res) => {
         if (passwordMatch) {
           delete user.password;
 
-          const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, { expiresIn: '30s' });
+          const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, { expiresIn: '24h' });
 
           return res.status(200).send({ message: "Login correcto", user, token });
         } else {
