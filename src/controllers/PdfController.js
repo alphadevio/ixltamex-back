@@ -19,7 +19,11 @@ const generate = async (req,res) => {
                 clients:true,
                 lots:{
                   include:{
-                    apples:true
+                    apples:{
+                      include:{
+                        developments:true
+                      }
+                    }
                   }
                 }
               }
@@ -100,23 +104,13 @@ const generate = async (req,res) => {
       <div style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; height: 140px; background-color: #fff2bd; border-top-style: solid; border-top-width: 1px; border-color: #0f0f0f; border-bottom-style: solid; border-bottom-width: 1px;">
         <div style="flex: 1; border-bottom-width: 1px; border-bottom-style: solid; border-color: #0f0f0f; width: 100%; display:flex; align-items:end">
          ${pago.payments.number === 0 ? `
-          <span style="font-size: x-large;">Enganche del lote ${pago.payments.sales.lots.lot_number}.</span>
+          <span style="font-size: x-large;">Enganche del lote ${pago.payments.sales.lots.lot_number}, perteneciente al desarrollo ${pago.payments.sales.lots.apples.developments.name}.</span>
          ` : `
-          <span style="font-size: x-large;">Pago #${pago.payments.number} del lote ${pago.payments.sales.lots.lot_number}.</span>
+          <span style="font-size: x-large;">Pago #${pago.payments.number} del lote ${pago.payments.sales.lots.lot_number}, perteneciente al desarrollo ${pago.payments.sales.lots.apples.developments.name}.</span>
          `}
           
         </div>
         <div style="flex: 1;"></div>
-      </div>
-
-      <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2px;">
-        <span style="font-family: sans-serif; font-weight: 600; font-size: x-large; flex: 2;">Forma de pago: </span>
-        <div style="background-color: #FDE68A; font-size: x-large; padding: 5px; flex: 6;">
-          <input type="checkbox" ${efectivo}/> <span>Efectivo</span>
-          <input type="checkbox" ${transferencia}/> <span>Transferencia bancaria</span>
-          <input type="checkbox" ${cheque}/> <span>Cheque</span>
-          <input type="checkbox" ${otro}/> <span>Otro</span>
-        </div>
       </div>
 
       <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2px;">
@@ -342,3 +336,13 @@ function NumeroALetras(num) {
 
 
 module.exports.PdfController = {generate}
+
+// <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2px;">
+// <span style="font-family: sans-serif; font-weight: 600; font-size: x-large; flex: 2;">Forma de pago: </span>
+// <div style="background-color: #FDE68A; font-size: x-large; padding: 5px; flex: 6;">
+//   <input type="checkbox" ${efectivo}/> <span>Efectivo</span>
+//   <input type="checkbox" ${transferencia}/> <span>Transferencia bancaria</span>
+//   <input type="checkbox" ${cheque}/> <span>Cheque</span>
+//   <input type="checkbox" ${otro}/> <span>Otro</span>
+// </div>
+// </div>
