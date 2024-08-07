@@ -225,7 +225,11 @@ const fetch = async (req, res) => {
       include: {
         lots:true,
         clients:true,
-        payments:true
+        payments:{
+          include:{
+            transactions:true
+          }
+        }
       },
       where: whereCondition,
       skip:offset,
