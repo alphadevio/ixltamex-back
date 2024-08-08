@@ -114,21 +114,25 @@ const generate = async (req,res) => {
       </div>
 
       <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2px;">
-        <img src="${qrDirection}" alt="Qr-image" style="width:120px; height:120px; margin-top:20px;"/>
+        <span style="font-family: sans-serif; font-weight: 600; font-size: x-large; flex: 2;">Forma de pago: </span>
+        <div style="background-color: #FDE68A; font-size: x-large; padding: 5px; flex: 6;">
+          <input type="checkbox" ${efectivo}/> <span>Efectivo</span>
+          <input type="checkbox" ${transferencia}/> <span>Transferencia bancaria</span>
+          <input type="checkbox" ${cheque}/> <span>Cheque</span>
+          <input type="checkbox" ${otro}/> <span>Otro</span>
+        </div>
       </div>
 
       <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2px;">
-        <div style="flex: 3; display: flex; flex-direction: column;">
-          <span style="font-family: sans-serif; font-size: large; padding: 5px; width: 100%; border-bottom-width: 1px; border-bottom-style: solid; border-color: #0f0f0f;">x</span>
-          <span style="font-family: sans-serif; font-size: large; padding: 5px; text-align: center; width: 100%;">Firma de recibido</span>
-        </div>
-        <div style="flex: 2; display: flex; flex-direction: column;"></div>
-        <div style="flex: 3; display: flex; flex-direction: column;">
-          <span style="font-family: sans-serif; font-size: large; padding: 5px; width: 100%; border-bottom-width: 1px; border-bottom-style: solid; border-color: #0f0f0f;">x</span>
-          <span style="font-family: sans-serif; font-size: large; padding: 5px; text-align: center; width: 100%;">Firma de entregado</span>
-        </div>
+        <img src="${qrDirection}" alt="Qr-image" style="width:120px; height:120px; margin-top:20px;"/>
       </div>
 
+      <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2px; margin-top:250px;">
+        <div style="flex: 3; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+          <span style="font-family: sans-serif; font-size: large; padding: 5px; width: 40%; border-bottom-width: 1px; border-bottom-style: solid; border-color: #0f0f0f;"></span>
+          <span style="font-family: sans-serif; font-size: large; padding: 5px; text-align: center; width: 100%;">Sello de Ixtlamex</span>
+        </div>
+      </div>
 
     </div>
 
@@ -337,12 +341,3 @@ function NumeroALetras(num) {
 
 module.exports.PdfController = {generate}
 
-// <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2px;">
-// <span style="font-family: sans-serif; font-weight: 600; font-size: x-large; flex: 2;">Forma de pago: </span>
-// <div style="background-color: #FDE68A; font-size: x-large; padding: 5px; flex: 6;">
-//   <input type="checkbox" ${efectivo}/> <span>Efectivo</span>
-//   <input type="checkbox" ${transferencia}/> <span>Transferencia bancaria</span>
-//   <input type="checkbox" ${cheque}/> <span>Cheque</span>
-//   <input type="checkbox" ${otro}/> <span>Otro</span>
-// </div>
-// </div>
