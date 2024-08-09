@@ -134,10 +134,9 @@ const save = async (req, res) => {
     content += `
       <span>Observaciones:</span>
       <span>INE:</span>
-      <img src="${process.env.API_URL}/public/${new_sale.clients.id_file_name}" style="max-height:500px; max-width:500px; height: auto; width: auto;"/>
     </div>
     `
-    
+    //      <img src="${process.env.API_URL}/public/${new_sale.clients.id_file_name}" style="max-height:500px; max-width:500px; height: auto; width: auto;"/>
     const dateName = new Date().getTime()
 
     //ADDS PDF TO SALE
@@ -167,7 +166,7 @@ const save = async (req, res) => {
         .json({ error: "Duplicate entry for lot ID detected 1", errorDetail: error.message });
     }
 
-    return res.status(500).send({ error: error.message, message:'Estoy LoCo' });
+    return res.status(500).send({ error: error, message:'Estoy LoCo' });
   }
 };
 
