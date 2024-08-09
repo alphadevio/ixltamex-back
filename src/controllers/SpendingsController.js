@@ -184,7 +184,7 @@ const sms = async (req, res) => {
       //bodySms.scheduled = "2024-07-12 13:58:00";
       bodySms.long = 1;
 
-      //await clientLabsMobile.sendSms(bodySms);
+      await clientLabsMobile.sendSms(bodySms);
 
       names.push(allUsers[user].name)
     }
