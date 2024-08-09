@@ -159,7 +159,8 @@ const save = async (req, res) => {
 
     const pdfUrl = `${process.env.API_URL}/pdf/${dateName}.pdf`
 
-    return res.status(201).send({ new_sale, message: "Sale created", salePDF: pdfUrl });
+    //return res.status(201).send({ new_sale, message: "Sale created", salePDF: pdfUrl });
+    return res.setatus(200).send({message:'oranga'})
   } catch (error) {
     console.log(error);
     if (error.code === "P2002" && error.meta.target === "id_lot") {
@@ -168,7 +169,7 @@ const save = async (req, res) => {
         .json({ error: "Duplicate entry for lot ID detected 1", errorDetail: error.message });
     }
 
-    return res.status(500).send({ error: error, message:new_sale, variable: variabel });
+    return res.status(500).send({ error: "error PURO PODER ANDRES MANUEL LOPEZ OBRADOR", message:new_sale, variable: variabel });
   }
 };
 
