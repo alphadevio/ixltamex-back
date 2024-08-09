@@ -9,6 +9,8 @@ const save = async (req, res) => {
     
     const payload = req.body;
     const sale = new Sale(payload);
+
+    //CREATES SALE
     const new_sale = await prisma.sales.create({
       data: sale,
       include:{
@@ -17,6 +19,7 @@ const save = async (req, res) => {
       }
     });
 
+    //UPDATES LOT TO NOW BE SOLD
     await prisma.lots.update({
       data:{
         sold:1
@@ -32,6 +35,7 @@ const save = async (req, res) => {
     
     let payment_occurrences;
     
+    //GENERATES DATA FOR THE PAYMENTS
     if(sale.frequency_type !== 'unique'){
       if (sale.frequency_type === "monthly") {
         payment_occurrences = monthlyPayments(sale.payment_day, sale.frequency_amount);
@@ -52,6 +56,7 @@ const save = async (req, res) => {
       <span>Costo en contrato: $${parseFloat(new_sale.price).toLocaleString()} (${NumeroALetras(parseFloat(new_sale.price))}<span style-"font-weight:600">mxn</span>)</span>
     `
     
+    //CREATES FIRST PAYMENT
     if(sale.first_payment > 0) {
       let payDay = Date.now()
       if(sale.frequency_type !== 'unique'){
@@ -81,6 +86,7 @@ const save = async (req, res) => {
         }
       })
       
+      //PAYS FIRST PAYMENT
       await prisma.transactions.create({
         data:{
           amount: parseFloat(sale.first_payment),
@@ -90,6 +96,7 @@ const save = async (req, res) => {
       })
     }
     
+    //CREATES PAYMENTS
     if(parseFloat(payload.amount_per_payment) > 0) {
       const payment_data = payment_occurrences.map((payment_occurrence, index) => ({
         id_sale: new_sale.id,
@@ -107,6 +114,7 @@ const save = async (req, res) => {
       content += `<span>No. de pagos ${sale.frequency_type === 'monthly' ? 'mensuales' : sale.frequency_type === 'biweekley' ? 'quincenales' : 'semanales'}: ${payment_occurrences.length} pagos de $${parseFloat(payload.amount_per_payment).toLocaleString()} (${NumeroALetras(parseFloat(payload.amount_per_payment))}<span style-"font-weight:600">mxn</span>)</span>`
     }
 
+    //CREATES EXTRA PAYMENT FOR THE DECIMALS
     if(extra_payment_odd_number > 0) {
       const last_payment = await prisma.payments.findFirst({
         orderBy:{
@@ -132,6 +140,7 @@ const save = async (req, res) => {
     
     const dateName = new Date().getTime()
 
+    //ADDS PDF TO SALE
     await prisma.sales.update({
       where:{
         id: new_sale.id
@@ -140,6 +149,7 @@ const save = async (req, res) => {
       }
     })
 
+    //CREATES PDF
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(content, { waitUntil: 'networkidle0' });
@@ -154,7 +164,7 @@ const save = async (req, res) => {
     if (error.code === "P2002" && error.meta.target === "id_lot") {
       return res
         .status(400)
-        .json({ error: "Duplicate entry for lot ID detected", errorDetail: error.message });
+        .json({ error: "Duplicate entry for lot ID detected 1", errorDetail: error.message });
     }
 
     return res.status(500).send({ error: error.message });
