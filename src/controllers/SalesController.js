@@ -134,9 +134,9 @@ const save = async (req, res) => {
     content += `
       <span>Observaciones:</span>
       <span>INE:</span>
+      <img src="${process.env.API_URL}/public/${new_sale.clients.id_file_name}" style="max-height:500px; max-width:500px; height: auto; width: auto;"/>
     </div>
     `
-    //      <img src="${process.env.API_URL}/public/${new_sale.clients.id_file_name}" style="max-height:500px; max-width:500px; height: auto; width: auto;"/>
     const dateName = new Date().getTime()
 
     //ADDS PDF TO SALE
@@ -149,13 +149,13 @@ const save = async (req, res) => {
     })
 
     //CREATES PDF
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.setContent(content, { waitUntil: 'networkidle0' });
-    await page.pdf({ path: `./public/pdf/${dateName.toString()}.pdf`, format: 'A4', printBackground: true });
-    await browser.close();
+    // const browser = await puppeteer.launch();
+    // const page = await browser.newPage();
+    // await page.setContent(content, { waitUntil: 'networkidle0' });
+    // await page.pdf({ path: `./public/pdf/${dateName.toString()}.pdf`, format: 'A4', printBackground: true });
+    // await browser.close();
 
-    const pdfUrl = `${process.env.API_URL}/pdf/${dateName}.pdf`
+    // const pdfUrl = `${process.env.API_URL}/pdf/${dateName}.pdf`
 
     return res.status(201).send({ new_sale, message: "Sale created", salePDF: pdfUrl });
   } catch (error) {
