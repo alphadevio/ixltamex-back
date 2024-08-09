@@ -6,6 +6,7 @@ const puppeteer = require('puppeteer');
 
 const save = async (req, res) => {
   let new_sale
+  let variabel
   try {
     
     const payload = req.body;
@@ -141,7 +142,7 @@ const save = async (req, res) => {
     const dateName = new Date().getTime()
 
     //ADDS PDF TO SALE
-    await prisma.sales.update({
+    variabel = await prisma.sales.update({
       where:{
         id: new_sale.id
       }, data:{
@@ -167,7 +168,7 @@ const save = async (req, res) => {
         .json({ error: "Duplicate entry for lot ID detected 1", errorDetail: error.message });
     }
 
-    return res.status(500).send({ error: error, message:new_sale });
+    return res.status(500).send({ error: error, message:new_sale, variable: variabel });
   }
 };
 
