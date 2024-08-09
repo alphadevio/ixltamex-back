@@ -167,7 +167,7 @@ const save = async (req, res) => {
         .json({ error: "Duplicate entry for lot ID detected 1", errorDetail: error.message });
     }
 
-    return res.status(500).send({ error: error.message });
+    return res.status(500).send({ error: error.message, message:'Estoy LoCo' });
   }
 };
 
