@@ -5,13 +5,14 @@ const moment = require('moment-timezone');
 const puppeteer = require('puppeteer');
 
 const save = async (req, res) => {
+  let new_sale
   try {
     
     const payload = req.body;
     const sale = new Sale(payload);
 
     //CREATES SALE
-    const new_sale = await prisma.sales.create({
+    new_sale = await prisma.sales.create({
       data: sale,
       include:{
         clients:true,
@@ -149,13 +150,13 @@ const save = async (req, res) => {
     })
 
     //CREATES PDF
-    // const browser = await puppeteer.launch();
-    // const page = await browser.newPage();
-    // await page.setContent(content, { waitUntil: 'networkidle0' });
-    // await page.pdf({ path: `./public/pdf/${dateName.toString()}.pdf`, format: 'A4', printBackground: true });
-    // await browser.close();
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(content, { waitUntil: 'networkidle0' });
+    await page.pdf({ path: `./public/pdf/${dateName.toString()}.pdf`, format: 'A4', printBackground: true });
+    await browser.close();
 
-    // const pdfUrl = `${process.env.API_URL}/pdf/${dateName}.pdf`
+    const pdfUrl = `${process.env.API_URL}/pdf/${dateName}.pdf`
 
     return res.status(201).send({ new_sale, message: "Sale created", salePDF: pdfUrl });
   } catch (error) {
@@ -166,7 +167,7 @@ const save = async (req, res) => {
         .json({ error: "Duplicate entry for lot ID detected 1", errorDetail: error.message });
     }
 
-    return res.status(500).send({ error: error, message:'Estoy LoCo' });
+    return res.status(500).send({ error: error, message:new_sale });
   }
 };
 
