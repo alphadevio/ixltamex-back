@@ -154,7 +154,7 @@ const save = async (req, res) => {
     if (error.code === "P2002" && error.meta.target === "id_lot") {
       return res
         .status(400)
-        .json({ error: "Duplicate entry for lot ID detected" });
+        .json({ error: "Duplicate entry for lot ID detected", errorDetail: error.message });
     }
 
     return res.status(500).send({ error: error.message });
