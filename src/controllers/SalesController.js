@@ -5,15 +5,13 @@ const moment = require('moment-timezone');
 const puppeteer = require('puppeteer');
 
 const save = async (req, res) => {
-  let new_sale
-  let variabel
   try {
     
     const payload = req.body;
     const sale = new Sale(payload);
 
     //CREATES SALE
-    new_sale = await prisma.sales.create({
+    const new_sale = await prisma.sales.create({
       data: sale,
       include:{
         clients:true,
@@ -142,7 +140,7 @@ const save = async (req, res) => {
     const dateName = new Date().getTime()
 
     //ADDS PDF TO SALE
-    variabel = await prisma.sales.update({
+    await prisma.sales.update({
       where:{
         id: new_sale.id
       }, data:{
@@ -159,10 +157,17 @@ const save = async (req, res) => {
 
     const pdfUrl = `${process.env.API_URL}/pdf/${dateName}.pdf`
 
-    //return res.status(201).send({ new_sale, message: "Sale created", salePDF: pdfUrl });
-    return res.setatus(200).send({message:'oranga'})
+    return res.status(201).send({ new_sale, message: "Sale created", salePDF: pdfUrl });
   } catch (error) {
-    return res.status(500).send({ error: "error PURO PODER ANDRES MANUEL LOPEZ OBRADOR", message:new_sale, variable: variabel, errorMessage:error.message });    
+    console.log(error);
+    if (error.code === "P2002" && error.meta.target === "id_lot") {
+      return res
+        .status(400)
+        .json({ error: "Duplicate entry for lot ID detected", errorDetail: error.message });
+    }else {
+      return res.status(500).send({ error: error.message});
+
+    }
   }
 };
 
