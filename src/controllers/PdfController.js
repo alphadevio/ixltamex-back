@@ -104,7 +104,7 @@ const generate = async (req,res) => {
       <div style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; height: 140px; background-color: #fff2bd; border-top-style: solid; border-top-width: 1px; border-color: #0f0f0f; border-bottom-style: solid; border-bottom-width: 1px;">
         <div style="flex: 1; border-bottom-width: 1px; border-bottom-style: solid; border-color: #0f0f0f; width: 100%; display:flex; align-items:end">
         ${pago.payment_type === 'bulk' ? 
-          `<span style="font-size: x-large;">Abono al capital del lote ${pago.payments.sales.lots.lot_number}, perteneciente al desarrollo ${pago.payments.sales.lots.apples.developments.name}.</span>`
+          `<span style="font-size: x-large;">Abono al capital del lote ${pago.payments.sales.lots.lot_number}, perteneciente al desarrollo ${pago.payments.sales.lots.apples.developments.name}, liquidando los pagos ${pago.details}.</span>`
           :
           pago.payments.number === 0 ? `
             <span style="font-size: x-large;">Enganche del lote ${pago.payments.sales.lots.lot_number}, perteneciente al desarrollo ${pago.payments.sales.lots.apples.developments.name}.</span>

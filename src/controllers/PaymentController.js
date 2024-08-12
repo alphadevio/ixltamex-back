@@ -101,6 +101,8 @@ const payBulk = async(req, res) => {
 
         let id_sale = -1;
 
+        const liquid_numbers = []
+
         for(let id of id_payments) {
             if(total_payed_amount <= 0) break;
 
@@ -128,6 +130,8 @@ const payBulk = async(req, res) => {
                         }
                     });
 
+                    liquid_numbers.push(old_payment.number)
+
                     total_payed_amount -= difference;
                 } else {
                     await prisma.payments.update({
@@ -152,6 +156,8 @@ const payBulk = async(req, res) => {
                         }
                     });
 
+                    liquid_numbers.push(old_payment.number)
+
                     total_payed_amount -= old_payment.amount;
                 } else {
                     await prisma.payments.update({
@@ -168,12 +174,22 @@ const payBulk = async(req, res) => {
             }
         }
 
+        let details = ''
+
+        for(liquid in liquid_numbers){
+            details += `no. ${liquid_numbers[liquid]}, `
+        }
+
+        if(details.endsWith(', ')) {
+            details = details.replace(/, $/, '');
+        }
 
         await prisma.transactions.create({
             data: {
                 amount: parseFloat(paid_amount),
                 id_payment: id_payments[0],
-                payment_type: payment_type
+                payment_type: payment_type,
+                details: details
             }
         });
 
