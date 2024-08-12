@@ -102,6 +102,7 @@ const payBulk = async(req, res) => {
         let id_sale = -1;
 
         const liquid_numbers = []
+        let summed = -1
 
         for(let id of id_payments) {
             if(total_payed_amount <= 0) break;
@@ -115,6 +116,8 @@ const payBulk = async(req, res) => {
             if (!old_payment) {
                 continue;
             }
+
+            if(old_payment.number === 0) continue;
 
             id_sale = old_payment.id_sale;
 
@@ -143,6 +146,8 @@ const payBulk = async(req, res) => {
                         }
                     });
 
+                    summed = old_payment.number
+
                     total_payed_amount = 0;
                 }
             } else {
@@ -169,6 +174,8 @@ const payBulk = async(req, res) => {
                         }
                     });
 
+                    summed = old_payment.number
+
                     total_payed_amount = 0;
                 }
             }
@@ -182,6 +189,10 @@ const payBulk = async(req, res) => {
 
         if(details.endsWith(', ')) {
             details = details.replace(/, $/, '');
+        }
+
+        if(summed !== -1) {
+            details += `, y se abonó al pago no. ${summed}`
         }
 
         await prisma.transactions.create({
