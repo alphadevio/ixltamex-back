@@ -124,18 +124,20 @@ const payBulk = async(req, res) => {
             if(old_payment.paid_amount > 0) {
                 const difference = old_payment.amount - old_payment.paid_amount;
                 if(total_payed_amount >= difference) {
-                    await prisma.payments.update({
-                        where: {
-                            id: old_payment.id
-                        }, data: {
-                            paid_amount: old_payment.amount,
-                            paid: 1
-                        }
-                    });
-
-                    liquid_numbers.push(old_payment.number)
-
-                    total_payed_amount -= difference;
+                    if(old_payment.paid !== 1) {
+                        await prisma.payments.update({
+                            where: {
+                                id: old_payment.id
+                            }, data: {
+                                paid_amount: old_payment.amount,
+                                paid: 1
+                            }
+                        });
+    
+                        liquid_numbers.push(old_payment.number)
+    
+                        total_payed_amount -= difference;
+                    }
                 } else {
                     await prisma.payments.update({
                         where: {
@@ -152,18 +154,20 @@ const payBulk = async(req, res) => {
                 }
             } else {
                 if(total_payed_amount >= old_payment.amount) {
-                    await prisma.payments.update({
-                        where: {
-                            id: old_payment.id
-                        }, data: {
-                            paid_amount: old_payment.amount,
-                            paid: 1
-                        }
-                    });
-
-                    liquid_numbers.push(old_payment.number)
-
-                    total_payed_amount -= old_payment.amount;
+                    if(old_payment.paid !== 0) {
+                        await prisma.payments.update({
+                            where: {
+                                id: old_payment.id
+                            }, data: {
+                                paid_amount: old_payment.amount,
+                                paid: 1
+                            }
+                        });
+    
+                        liquid_numbers.push(old_payment.number)
+    
+                        total_payed_amount -= old_payment.amount;
+                    }
                 } else {
                     await prisma.payments.update({
                         where: {
