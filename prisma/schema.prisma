@@ -18,6 +18,7 @@ model users {
   percentages  percentages[]
   spendings    spendings[]
   profiles     profiles      @relation(fields: [profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "profile_id")
+  logs         sms_log[]
 
   @@index([id], map: "ix_users_id")
   @@index([profile_id], map: "profile_id_idx")
@@ -193,4 +194,15 @@ model verification_codes {
   code      String    @db.VarChar(6)
   used      Int       
   date      Decimal?  @db.Decimal(13, 0)
+}
+
+model sms_log {
+  id        Int       @id @default(autoincrement())
+  sent_at   DateTime  @default(now()) @db.DateTime(0)
+  content   String    @db.Text
+  sent_to   Int       
+
+  user      users     @relation(fields: [sent_to], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sms_log_ibfk_1")
+
+  @@index([sent_to], map: "sent_to")
 }

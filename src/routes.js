@@ -14,6 +14,7 @@ const { AccountStateRoutes } = require('./routes/AccountStateRoutes')
 const { SpendingsRoutes } = require('./routes/SpendingsRoutes')
 const { CutRoutes } = require('./routes/CutRoutes')
 const { ProfileRoutes } = require('./routes/ProfileRoutes')
+const { SmsLogsRoutes } = require ('./routes/SmsLogsRoutes')
 
 const { verifyToken } = require('./middleware/verifyToken')
 
@@ -36,5 +37,6 @@ router.use('/account-state', verifyToken, AccountStateRoutes)
 router.use('/spendings', verifyToken, SpendingsRoutes)
 router.use('/cut', verifyToken, CutRoutes)
 router.use('/profile', verifyToken, ProfileRoutes)
+router.use('/sms-logs', verifyToken, SmsLogsRoutes)
 
 module.exports = router;

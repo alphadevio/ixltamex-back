@@ -6,6 +6,7 @@ const puppeteer = require('puppeteer');
 const QRCode = require('qrcode');
 const LabsMobileClient = require("labsmobile-sms/src/LabsMobileClient");
 const LabsMobileModelTextMessage = require("labsmobile-sms/src/LabsMobileModelTextMessage");
+const LabsMobileModelCountryPrice = require("labsmobile-sms/src/LabsMobileModelCountryPrice");
 const ParametersException = require("labsmobile-sms/src/Exception/ParametersException");
 const RestException = require("labsmobile-sms/src/Exception/RestException");
 
@@ -186,6 +187,13 @@ const sms = async (req, res) => {
 
       await clientLabsMobile.sendSms(bodySms);
 
+      await prisma.sms_log.create({
+        data:{
+          content:message,
+          sent_to: parseInt(allUsers[user].id)
+        }
+      })
+
       names.push(allUsers[user].name)
     }
     
@@ -230,6 +238,27 @@ const verifySMS = async (req, res) => {
     } else {
       return res.status(400).send({message:'Fail, code was sent more than 10 minutes ago'})
     }
+  } catch (error) {
+    return res.status(500).send({message:'Internal server error', error: error.message})
+  }
+}
+
+const SMScontrol = async (req, res) => {
+  try{
+    const username = process.env.LABSMOBILE_USERNAME;
+    const token = process.env.LABSMOBILE_TOKEN;
+    const clientLabsMobile = new LabsMobileClient(username, token);
+
+    const countriesPrice = new LabsMobileModelCountryPrice(['MX']);
+    const amount = await clientLabsMobile.getpricesCountry(countriesPrice);
+
+    const quantity = await clientLabsMobile.getCredit()
+    
+    const result = Math.round(parseFloat(quantity.credits) / parseFloat(amount['MX'].credits))
+
+    //const amount = await clientLabsMobile.getpricesCountry('MX')
+
+    return res.status(200).send({message:'Success', messages:result})
   } catch (error) {
     return res.status(500).send({message:'Internal server error', error: error.message})
   }
@@ -531,4 +560,4 @@ function NumeroALetras(num) {
     );
 } //NumeroALetras()
 
-module.exports.SpendingsController = {save,fetch,update,destroy, sms, generatePDF, verifySMS}
+module.exports.SpendingsController = {save,fetch,update,destroy, sms, generatePDF, verifySMS, SMScontrol}
