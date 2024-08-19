@@ -105,7 +105,6 @@ const payBulk = async(req, res) => {
         let summed = -1
 
         for(let id of id_payments) {
-            return res.status(200).send({message: 'SI ENTRA AL FOR.'});
             if(total_payed_amount <= 0) break;
 
             const old_payment = await prisma.payments.findFirst({
@@ -125,7 +124,7 @@ const payBulk = async(req, res) => {
             if(old_payment.paid_amount > 0) {
                 const difference = old_payment.amount - old_payment.paid_amount;
                 if(total_payed_amount >= difference) {
-                    if(old_payment.paid !== 1) {
+                    if(old_payment.paid === 1) {
                         await prisma.payments.update({
                             where: {
                                 id: old_payment.id
@@ -155,7 +154,7 @@ const payBulk = async(req, res) => {
                 }
             } else {
                 if(total_payed_amount >= old_payment.amount) {
-                    if(old_payment.paid !== 0) {
+                    if(old_payment.paid === 0) {
                         await prisma.payments.update({
                             where: {
                                 id: old_payment.id
@@ -185,7 +184,6 @@ const payBulk = async(req, res) => {
                 }
             }
         }
-        return res.status(200).send({message: 'NO ENTRA AL FOR.'});
 
         let details = ''
 
