@@ -105,6 +105,7 @@ const payBulk = async(req, res) => {
         let summed = -1
 
         for(let id of id_payments) {
+            return res.status(200).send({message: 'SI ENTRA AL FOR.'});
             if(total_payed_amount <= 0) break;
 
             const old_payment = await prisma.payments.findFirst({
@@ -184,6 +185,7 @@ const payBulk = async(req, res) => {
                 }
             }
         }
+        return res.status(200).send({message: 'NO ENTRA AL FOR.'});
 
         let details = ''
 
