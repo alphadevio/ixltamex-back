@@ -124,7 +124,7 @@ const payBulk = async(req, res) => {
             if(old_payment.paid_amount > 0) {
                 const difference = old_payment.amount - old_payment.paid_amount;
                 if(total_payed_amount >= difference) {
-                    if(old_payment.paid === 1) {
+                    if(old_payment.paid === 0) {
                         await prisma.payments.update({
                             where: {
                                 id: old_payment.id
