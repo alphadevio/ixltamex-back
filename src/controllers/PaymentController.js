@@ -107,7 +107,7 @@ const payBulk = async(req, res) => {
         const trac = await prisma.transactions.create({
             data: {
                 amount: parseFloat(paid_amount),
-                id_payment: null,
+                id_payment: parseInt(id_payments[0]),
                 payment_type: payment_type,
                 details: ''
             }
@@ -213,7 +213,6 @@ const payBulk = async(req, res) => {
         await prisma.transactions.update({
             data: {
                 amount: parseFloat(paid_amount),
-                id_payment: null,
                 payment_type: payment_type,
                 details: details
             }, where: {
