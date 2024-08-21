@@ -227,6 +227,7 @@ const fetchById = async(req, res) => {
             return res.status(404).send({message:'Transaction does not exist'})
         }
 
+        transaction.amount = parseFloat(transaction.amount)
         return res.status(200).send({message:'Transaction fetched successfully', transaction})
     } catch (error) {
         return res.status(500).send({ error });
