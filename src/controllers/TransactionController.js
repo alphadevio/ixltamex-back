@@ -118,7 +118,6 @@ const fetch = async (req, res) => {
     }
 };
 
-
 const refund = async (req, res) => {
     const ID = req.params.id;
     try {
@@ -128,44 +127,79 @@ const refund = async (req, res) => {
             }
         });
 
-        const modified_payment = await prisma.payments.findUnique({
-            where: {
-                id: parseInt(refunded_transaction.id_payment)
-            }
-        });
+        if(refunded_transaction.id_payment !== null) {
+            const modified_payment = await prisma.payments.findUnique({
+                where: {
+                    id: parseInt(refunded_transaction.id_payment)
+                }
+            });
+    
+            const modified_sale = await prisma.sales.findUnique({
+                where: {
+                    id: parseInt(modified_payment.id_sale)
+                }
+            });
+    
+            // Subtract the refunded amount from the payment and sale amounts
+            const updated_payment_amount = parseFloat(modified_payment.paid_amount) - parseFloat(refunded_transaction.amount);
+            const updated_sale_paid = parseFloat(modified_sale.paid) - parseFloat(refunded_transaction.amount);
+    
+            // Update payment and sale with modified amounts
+            await prisma.payments.update({
+                where: {
+                    id: parseInt(refunded_transaction.id_payment)
+                },
+                data: {
+                    paid_amount: updated_payment_amount,
+                    paid: updated_payment_amount < parseFloat(modified_payment.amount) ? 0 : modified_payment.paid
+                }
+            });
+    
+            await prisma.sales.update({
+                where: {
+                    id: parseInt(modified_payment.id_sale)
+                },
+                data: {
+                    paid: updated_sale_paid
+                }
+            });
+        } else {
+            const modified_payments = await prisma.payments.findMany({
+                where:{
+                    id_transaction: refunded_transaction.id
+                }
+            })
 
-        const modified_sale = await prisma.sales.findUnique({
-            where: {
-                id: parseInt(modified_payment.id_sale)
-            }
-        });
+            const modified_sale = await prisma.sales.findUnique({
+                where: {
+                    id: parseInt(modified_payments[0].id_sale)
+                }
+            });
 
-        // Subtract the refunded amount from the payment and sale amounts
-        const updated_payment_amount = parseFloat(modified_payment.paid_amount) - parseFloat(refunded_transaction.amount);
-        const updated_sale_paid = parseFloat(modified_sale.paid) - parseFloat(refunded_transaction.amount);
+            const updated_sale_paid = parseFloat(modified_sale.paid) - parseFloat(refunded_transaction.amount);
 
-        // Update payment and sale with modified amounts
-        await prisma.payments.update({
-            where: {
-                id: parseInt(refunded_transaction.id_payment)
-            },
-            data: {
-                paid_amount: updated_payment_amount,
-                paid: updated_payment_amount < parseFloat(modified_payment.amount) ? 0 : modified_payment.paid
-            }
-        });
+            await prisma.payments.updateMany({
+                where:{
+                    id:{
+                        in: modified_payments.map(payment => payment.id)
+                    }
+                }, data:{
+                    paid_amount:0,
+                    paid:0
+                }
+            })
 
-        await prisma.sales.update({
-            where: {
-                id: parseInt(modified_payment.id_sale)
-            },
-            data: {
-                paid: updated_sale_paid
-            }
-        });
+            await prisma.sales.update({
+                where:{
+                    id:modified_sale.id
+                }, data:{
+                    paid: updated_sale_paid
+                }
+            })
+        }
 
         // Mark the transaction as refunded
-       const updated_transaction = await prisma.transactions.update({
+        const updated_transaction = await prisma.transactions.update({
             where: {
                 id: parseInt(ID)
             },
@@ -180,4 +214,22 @@ const refund = async (req, res) => {
     }
 };
 
-module.exports.TransactionController = {fetch,refund}
+const fetchById = async(req, res) => {
+    try{
+        const { id_transaction } = req.params
+        const transaction = await prisma.transactions.findFirst({
+            where:{
+                id:parseInt(id_transaction)
+            }
+        })
+
+        if(!transaction){
+            return res.status(404).send({message:'Transaction does not exist'})
+        }
+
+        return res.status(200).send({message:'Transaction fetched successfully', transaction})
+    } catch (error) {
+        return res.status(500).send({ error });
+    }
+}
+module.exports.TransactionController = {fetch, refund, fetchById}
