@@ -127,7 +127,7 @@ const refund = async (req, res) => {
             }
         });
 
-        if(refunded_transaction.id_payment !== null) {
+        if(refunded_transaction.payment_type !== 'bulk') {
             const modified_payment = await prisma.payments.findUnique({
                 where: {
                     id: parseInt(refunded_transaction.id_payment)
