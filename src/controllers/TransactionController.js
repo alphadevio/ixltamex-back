@@ -210,7 +210,7 @@ const refund = async (req, res) => {
 
         return res.status(200).send({ message: "Transaction has been refunded", updated_transaction });
     } catch (error) {
-        return res.status(500).send({ error });
+        return res.status(500).send({ message:'Internal server error', error:error.message });
     }
 };
 
