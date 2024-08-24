@@ -137,7 +137,7 @@ const fetch = async (req, res) => {
         res.status(200).send({ message:'Successfully retrieved transactions', transactions, count:count.length });
     } catch (error) {
         console.error(error);
-        res.status(500).send({ error: 'An error occurred while fetching transactions' });
+        res.status(500).send({ error: 'An error occurred while fetching transactions', error: error.message });
     }
 };
 
