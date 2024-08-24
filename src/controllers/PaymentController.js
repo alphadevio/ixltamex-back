@@ -145,7 +145,6 @@ const payBulk = async(req, res) => {
                             }, data: {
                                 paid_amount: old_payment.amount,
                                 paid: 1,
-                                id_transaction: trac.id
                             }
                         });
 
