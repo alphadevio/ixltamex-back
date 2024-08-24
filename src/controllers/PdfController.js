@@ -12,23 +12,25 @@ const generate = async (req,res) => {
       where:{
         id: idTransaccion
       }, include: {
-        payments:{
-          include:{
-            sales:{
-              include:{
-                clients:true,
-                lots:{
-                  include:{
-                    apples:{
-                      include:{
-                        developments:true
+        paymentTransactions:{
+          include:{payment:{
+            include:{
+              sales:{
+                include:{
+                  clients:true,
+                  lots:{
+                    include:{
+                      apples:{
+                        include:{
+                          developments:true
+                        }
                       }
                     }
                   }
                 }
               }
             }
-          }
+          }}
         }
       }
     })
@@ -84,7 +86,7 @@ const generate = async (req,res) => {
     <div style="width: 95%; background-color: white; border-style: solid; border-color: #0f0f0f; border-width: 1px; display: flex; justify-content:center; align-items: center; padding: 10px; margin: 10px; flex-direction: column; gap: 20px;">
       <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2px;">
         <span style="font-family: sans-serif; font-weight: 600; font-size: x-large; flex: 2;">Recibí de </span>
-        <span style="font-family: sans-serif; background-color: #FDE68A; font-weight: 600; font-size: x-large; padding: 5px; flex: 6;">${pago.payments.sales.clients.name}</span>
+        <span style="font-family: sans-serif; background-color: #FDE68A; font-weight: 600; font-size: x-large; padding: 5px; flex: 6;">${pago.paymentTransactions[0].payment.sales.clients.name}</span>
       </div>
       <div style="width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 2px;">
         <span style="font-family: sans-serif; font-weight: 600; font-size: x-large; flex: 2;">La suma de </span>
@@ -104,12 +106,12 @@ const generate = async (req,res) => {
       <div style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; height: 140px; background-color: #fff2bd; border-top-style: solid; border-top-width: 1px; border-color: #0f0f0f; border-bottom-style: solid; border-bottom-width: 1px;">
         <div style="flex: 1; border-bottom-width: 1px; border-bottom-style: solid; border-color: #0f0f0f; width: 100%; display:flex; align-items:end">
         ${pago.payment_type === 'bulk' ? 
-          `<span style="font-size: x-large;">Pago anticipado del lote ${pago.payments.sales.lots.lot_number}, perteneciente al desarrollo ${pago.payments.sales.lots.apples.developments.name}, liquidando los pagos ${pago.details}.</span>`
+          `<span style="font-size: x-large;">Pago anticipado del lote ${pago.paymentTransactions[0].payment.sales.lots.lot_number}, perteneciente al desarrollo ${pago.paymentTransactions[0].payment.sales.lots.apples.developments.name}, liquidando los pagos ${pago.details}.</span>`
           :
-          pago.payments.number === 0 ? `
-            <span style="font-size: x-large;">Enganche del lote ${pago.payments.sales.lots.lot_number}, perteneciente al desarrollo ${pago.payments.sales.lots.apples.developments.name}.</span>
+          pago.paymentTransactions[0].payment.number === 0 ? `
+            <span style="font-size: x-large;">Enganche del lote ${pago.paymentTransactions[0].payment.sales.lots.lot_number}, perteneciente al desarrollo ${pago.paymentTransactions[0].payment.sales.lots.apples.developments.name}.</span>
            ` : `
-            <span style="font-size: x-large;">Pago #${pago.payments.number} del lote ${pago.payments.sales.lots.lot_number}, perteneciente al desarrollo ${pago.payments.sales.lots.apples.developments.name}.</span>
+            <span style="font-size: x-large;">Pago #${pago.paymentTransactions[0].payment.number} del lote ${pago.paymentTransactions[0].payment.sales.lots.lot_number}, perteneciente al desarrollo ${pago.paymentTransactions[0].payment.sales.lots.apples.developments.name}.</span>
            `
         }
          
