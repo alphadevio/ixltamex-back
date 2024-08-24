@@ -92,7 +92,7 @@ const pay = async (req, res) => {
         res.status(200).json({ message: "Payment successfully processed." });
     } catch (error) {
         console.error("Error processing payment:", error);
-        res.status(500).json({ error: "Internal server error." });
+        res.status(500).json({ message: "Internal server error.", error:error.message});
     }
 };
 
