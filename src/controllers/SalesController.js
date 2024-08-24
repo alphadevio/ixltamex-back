@@ -246,6 +246,10 @@ const fetch = async (req, res) => {
             paymentTransactions:{
               include:{
                 transaction:true
+              }, where:{
+                transaction:{
+                  refunded:0
+                }
               }
             }
           }
