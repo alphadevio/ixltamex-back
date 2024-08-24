@@ -87,11 +87,17 @@ const save = async (req, res) => {
       })
       
       //PAYS FIRST PAYMENT
-      await prisma.transactions.create({
+      const first_ever_transaction = await prisma.transactions.create({
         data:{
           amount: parseFloat(sale.first_payment),
-          id_payment: first_ever_payment.id,
           payment_type: 'otro'
+        }
+      })
+
+      await prisma.payment_transactions.create({
+        data:{
+          id_transaction:first_ever_transaction.id,
+          id_payment:first_ever_payment.id
         }
       })
     }
@@ -237,7 +243,11 @@ const fetch = async (req, res) => {
         clients:true,
         payments:{
           include:{
-            transactions:true
+            paymentTransactions:{
+              include:{
+                transaction:true
+              }
+            }
           }
         }
       },
@@ -436,7 +446,6 @@ function adjustDates (dates, frequency_type) {
     return momentDate.valueOf();
 });
 }
-
 
 function Unidades(num) {
   switch (num) {

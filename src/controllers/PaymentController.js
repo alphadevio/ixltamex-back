@@ -39,11 +39,18 @@ const pay = async (req, res) => {
             }
         });
 
-        await prisma.transactions.create({
+        const transaction = await prisma.transactions.create({
             data:{
                 amount: parseFloat(paid_amount) || parseFloat(new_paid_amount),
                 id_payment: new_payment.id,
                 payment_type: payment_type
+            }
+        })
+
+        await prisma.payment_transactions.create({
+            data:{
+                id_transaction:transaction.id,
+                id_payment: parseInt(id_payment)
             }
         })
 
@@ -107,7 +114,6 @@ const payBulk = async(req, res) => {
         const trac = await prisma.transactions.create({
             data: {
                 amount: parseFloat(paid_amount),
-                id_payment: parseInt(id_payments[0]),
                 payment_type: payment_type,
                 details: ''
             }
@@ -143,6 +149,13 @@ const payBulk = async(req, res) => {
                                 id_transaction: trac.id
                             }
                         });
+
+                        await prisma.payment_transactions.create({
+                            data:{
+                                id_transaction:trac.id,
+                                id_payment: old_payment.id
+                            }
+                        })
     
                         liquid_numbers.push(old_payment.number)
     
@@ -158,6 +171,13 @@ const payBulk = async(req, res) => {
                         }
                     });
 
+                    await prisma.payment_transactions.create({
+                        data:{
+                            id_transaction:trac.id,
+                            id_payment: old_payment.id
+                        }
+                    })
+
                     summed = old_payment.number
 
                     total_payed_amount = 0;
@@ -171,9 +191,15 @@ const payBulk = async(req, res) => {
                             }, data: {
                                 paid_amount: old_payment.amount,
                                 paid: 1,
-                                id_transaction: trac.id
                             }
                         });
+
+                        await prisma.payment_transactions.create({
+                            data:{
+                                id_transaction:trac.id,
+                                id_payment: old_payment.id
+                            }
+                        })
     
                         liquid_numbers.push(old_payment.number)
     
@@ -188,6 +214,13 @@ const payBulk = async(req, res) => {
                             paid: 0
                         }
                     });
+
+                    await prisma.payment_transactions.create({
+                        data:{
+                            id_transaction:trac.id,
+                            id_payment: old_payment.id
+                        }
+                    })
 
                     summed = old_payment.number
 
@@ -212,8 +245,6 @@ const payBulk = async(req, res) => {
 
         await prisma.transactions.update({
             data: {
-                amount: parseFloat(paid_amount),
-                payment_type: payment_type,
                 details: details
             }, where: {
                 id:trac.id

@@ -1,117 +1,140 @@
 const { PrismaClient } = require("@prisma/client");
-const db = require("../database/knex");
 const prisma = new PrismaClient();
 
 const fetch = async (req, res) => {
-    const id_lot = req.query.id_lot;
-    const id_client = req.query.id_cliente;
-    const offset = parseInt(req.query.offset);
-    const limit = parseInt(req.query.limit)
-    const searchTerm = req.query.where;
-    const date = req.query.date;
-
-    let take = 999999
-    if(limit) {
-        take = limit
-    }
-
-    let baseQuery = db('transactions')
-        .select(
-            'transactions.id',
-            'transactions.amount',
-            'transactions.created_at',
-            'transactions.refunded',
-            'transactions.id_payment',
-            'transactions.payment_type',
-            'payments.id as id_payment',
-            'payments.amount as amount_payment',
-            'payments.payment_date',
-            'payments.paid as paid_payments',
-            'payments.paid_amount as paid_amount_payments',
-            'payments.number as paid_number',
-            'sales.price as price_sales',
-            'sales.paid as paid_sales',
-            'sales.payment_day as payment_day_sales',
-            'sales.payment_weekday as payment_weekday_sales',
-            'sales.frequency_type as frequency_type_sales',
-            'sales.frequency_amount as frequency_amount_sales',
-            'sales.first_payment as first_payment_sales',
-            'clients.name as name_clients',
-            'clients.phone_number as phone_number_clients',
-            'clients.id_file_name as id_file_name_clients',
-            'lots.id as lot_id',
-            'lots.id_apple',
-            'lots.lot_number',
-            'lots.area',
-            'lots.top_width',
-            'lots.bottom_width',
-            'lots.right_length',
-            'lots.left_length',
-            'lots.deleted',
-            'lots.sold',
-            'apples.name as name_apples',
-            'apples.id_development as id_development_apples',
-            'apples.id as id_apples',
-            'developments.name as name_developments',
-            'developments.location as location_developments',
-            'developments.lots as lots_developments',
-            'developments.id as id_developments',
-        )
-        .leftJoin('payments', 'transactions.id_payment', 'payments.id')
-        .leftJoin('sales', 'payments.id_sale', 'sales.id')
-        .leftJoin('clients', 'sales.id_client', 'clients.id')
-        .leftJoin('lots', 'sales.id_lot', 'lots.id')
-        .leftJoin('apples', 'lots.id_apple', 'apples.id')
-        .leftJoin('developments', 'apples.id_development', 'developments.id')
-        .orderBy('transactions.created_at','desc')
-
-    if (id_lot) {
-        baseQuery = baseQuery.where('lots.id', parseInt(id_lot));
-    }
-
-    if (id_client) {
-        baseQuery = baseQuery.where('sales.id_client', parseInt(id_client));
-    }
-
-    if (date) {
-        const fecha = new Date(date)
-        fecha.setDate(fecha.getDate() + 1)
-        baseQuery = baseQuery.where('transactions.created_at', '>=', new Date(date));
-        baseQuery = baseQuery.where('transactions.created_at', '<=', fecha);
-    }
-
-    baseQuery = baseQuery.where('transactions.deleted', 0);
-
-    if (searchTerm) {
-        baseQuery = baseQuery.andWhere(builder => {
-            builder
-                .orWhere('transactions.id', 'like', `%${searchTerm}%`)
-                .orWhere('transactions.amount', 'like', `%${searchTerm}%`)
-                .orWhere('lots.lot_number', 'like', `%${searchTerm}%`)
-                .orWhere('apples.name', 'like', `%${searchTerm}%`)
-                .orWhere('developments.name', 'like', `%${searchTerm}%`)
-                .orWhere('clients.name', 'like', `%${searchTerm}%`);
-        });
-    }
-
-    // Clonar la consulta base para el conteo total
-    let countQuery = baseQuery.clone().count('* as count');
-
-    if (offset) {
-        baseQuery = baseQuery.offset(offset);
-    }
-
-    baseQuery = baseQuery.limit(take);
-
     try {
-        const [result, countResult] = await Promise.all([
-            baseQuery,
-            countQuery
-        ]);
+        const { date, limit, offset, id_client, id_lot } = req.query
+        const searchTerm = req.query.where
 
-        const count = countResult[0].count;
+        const where = {deleted: 0}
 
-        res.status(200).send({ result, count });
+        if(date){
+            where.created_at = {
+                gte: new Date(date),
+                lt: (() => {
+                    const fecha = new Date(date);
+                    fecha.setDate(fecha.getDate() + 1);
+                    return fecha;
+                })()
+            }
+        }
+
+        if(id_lot || id_client) {
+            where.paymentTransactions = {
+                some:{
+                    payment:{
+                        sales:{}
+                    }
+                }
+            }
+        }
+
+        let skip = 0
+        if(offset){
+            skip = parseInt(offset)
+        }
+
+        if(id_lot) {
+            where.paymentTransactions.some.payment.sales.id_lot = parseInt(id_lot)
+        }
+
+        if(id_client){
+            where.paymentTransactions.some.payment.sales.id_client = parseInt(id_client)
+        }
+
+        if (searchTerm) {
+            const orConditions = [];
+        
+            // Verificación para el campo `id`
+            if (!isNaN(parseInt(searchTerm))) {
+                orConditions.push({ id: { equals: parseInt(searchTerm) } });
+            }
+        
+            // Verificación para el campo `amount`
+            if (!isNaN(parseFloat(searchTerm))) {
+                orConditions.push({ amount: { equals: parseFloat(searchTerm) } });
+            }
+        
+            // Condiciones para los campos de texto
+            orConditions.push(
+                { paymentTransactions: { some: { payment: { sales: { lots: { lot_number: { contains: searchTerm } } } } } } },
+                { paymentTransactions: { some: { payment: { sales: { lots: { apples: { name: { contains: searchTerm } } } } } } } },
+                { paymentTransactions: { some: { payment: { sales: { lots: { apples: { developments: { name: { contains: searchTerm } } } } } } } } },
+                { paymentTransactions: { some: { payment: { sales: { clients: { name: { contains: searchTerm } } } } } } }
+            );
+        
+            where.OR = orConditions;
+        }
+        
+
+        let take = 999999
+        if(limit) {
+            take = parseInt(limit)
+        }
+
+        const transactions = await prisma.transactions.findMany({
+            include:{
+                paymentTransactions:{
+                    include:{
+                        payment:{
+                            include:{
+                                sales:{
+                                    include:{
+                                        clients:true,
+                                        lots:{
+                                            include:{
+                                                apples:{
+                                                    include:{
+                                                        developments:true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }, take: take,
+            where, 
+            orderBy:{
+                created_at:'desc'
+            }, skip
+        })
+
+        const count = await prisma.transactions.findMany({
+            include:{
+                paymentTransactions:{
+                    include:{
+                        payment:{
+                            include:{
+                                sales:{
+                                    include:{
+                                        clients:true,
+                                        lots:{
+                                            include:{
+                                                apples:{
+                                                    include:{
+                                                        developments:true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }, 
+            where, 
+            orderBy:{
+                created_at:'desc'
+            }, skip
+        })
+
+        res.status(200).send({ message:'Successfully retrieved transactions', transactions, count:count.length });
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'An error occurred while fetching transactions' });
@@ -124,79 +147,52 @@ const refund = async (req, res) => {
         const refunded_transaction = await prisma.transactions.findUnique({
             where: {
                 id: parseInt(ID)
+            }, include:{paymentTransactions:{include:{transaction:true}}}
+        });
+
+        const payments_ids = refunded_transaction.paymentTransactions.map(payTrac => payTrac.id_payment)
+
+        const modified_payments = await prisma.payments.findMany({
+            where:{
+                id:{in:payments_ids}
+            }
+        })
+
+        const modified_sale = await prisma.sales.findUnique({
+            where: {
+                id: parseInt(modified_payments[0].id_sale)
             }
         });
 
-        if(refunded_transaction.payment_type !== 'bulk') {
-            const modified_payment = await prisma.payments.findUnique({
-                where: {
-                    id: parseInt(refunded_transaction.id_payment)
-                }
-            });
-    
-            const modified_sale = await prisma.sales.findUnique({
-                where: {
-                    id: parseInt(modified_payment.id_sale)
-                }
-            });
-    
-            // Subtract the refunded amount from the payment and sale amounts
-            const updated_payment_amount = parseFloat(modified_payment.paid_amount) - parseFloat(refunded_transaction.amount);
-            const updated_sale_paid = parseFloat(modified_sale.paid) - parseFloat(refunded_transaction.amount);
-    
+        let refunded_money = refunded_transaction.amount
+        for(const modified_payment of modified_payments){
+            let updated_payment_amount = parseFloat(modified_payment.paid_amount) - parseFloat(refunded_money);
+            if( updated_payment_amount < 0 ) updated_payment_amount = 0
+            refunded_money -= parseFloat(modified_payment.paid_amount)
+            if( refunded_money < 0 ) refunded_money = 0
+            
             // Update payment and sale with modified amounts
             await prisma.payments.update({
                 where: {
-                    id: parseInt(refunded_transaction.id_payment)
+                    id: parseInt(modified_payment.id)
                 },
                 data: {
                     paid_amount: updated_payment_amount,
-                    paid: updated_payment_amount < parseFloat(modified_payment.amount) ? 0 : modified_payment.paid
+                    paid: 0
                 }
             });
-    
-            await prisma.sales.update({
-                where: {
-                    id: parseInt(modified_payment.id_sale)
-                },
-                data: {
-                    paid: updated_sale_paid
-                }
-            });
-        } else {
-            const modified_payments = await prisma.payments.findMany({
-                where:{
-                    id_transaction: refunded_transaction.id
-                }
-            })
-
-            const modified_sale = await prisma.sales.findUnique({
-                where: {
-                    id: parseInt(modified_payments[0].id_sale)
-                }
-            });
-
-            const updated_sale_paid = parseFloat(modified_sale.paid) - parseFloat(refunded_transaction.amount);
-
-            await prisma.payments.updateMany({
-                where:{
-                    id:{
-                        in: modified_payments.map(payment => payment.id)
-                    }
-                }, data:{
-                    paid_amount:0,
-                    paid:0
-                }
-            })
-
-            await prisma.sales.update({
-                where:{
-                    id:modified_sale.id
-                }, data:{
-                    paid: updated_sale_paid
-                }
-            })
         }
+
+        const updated_sale_paid = parseFloat(modified_sale.paid) - parseFloat(refunded_transaction.amount);
+        await prisma.sales.update({
+            where: {
+                id: parseInt(modified_payments[0].id_sale)
+            },
+            data: {
+                paid: updated_sale_paid
+            }
+        });
+        
 
         // Mark the transaction as refunded
         const updated_transaction = await prisma.transactions.update({
@@ -214,23 +210,4 @@ const refund = async (req, res) => {
     }
 };
 
-const fetchById = async(req, res) => {
-    try{
-        const { id_transaction } = req.params
-        const transaction = await prisma.transactions.findFirst({
-            where:{
-                id:parseInt(id_transaction)
-            }
-        })
-
-        if(!transaction){
-            return res.status(404).send({message:'Transaction does not exist'})
-        }
-
-        transaction.amount = parseFloat(transaction.amount)
-        return res.status(200).send({message:'Transaction fetched successfully', transaction})
-    } catch (error) {
-        return res.status(500).send({ error });
-    }
-}
-module.exports.TransactionController = {fetch, refund, fetchById}
+module.exports.TransactionController = {fetch, refund }
