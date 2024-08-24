@@ -39,7 +39,9 @@ const fetch = async (req,res) =>{
           include:{
             payments:{
               include:{
-                transactions:true
+                paymentTransactions:{
+                  include:{transaction:true}
+                }
               }
             }, clients:true
           }, where: {
@@ -76,7 +78,9 @@ const fetch = async (req,res) =>{
           include:{
             payments:{
               include:{
-                transactions: true
+                paymentTransactions:{
+                  include:{transaction:true}
+                }
               },
             }, clients: true
           }, where: {
@@ -137,7 +141,9 @@ const pdfmake = async (req, res) => {
             include:{
               payments:{
                 include:{
-                  transactions:true
+                  paymentTransactions:{
+                    include:{transaction:true}
+                  }
                 }
               }, clients:true
             }, where: {
@@ -170,7 +176,9 @@ const pdfmake = async (req, res) => {
             include:{
               payments:{
                 include:{
-                  transactions: true
+                  paymentTransactions:{
+                    include:{transaction:true}
+                  }
                 },
               }, clients: true
             }, where: {
@@ -396,7 +404,8 @@ const pdfmake = async (req, res) => {
 
       paid += parseFloat(result[i].sales[0].paid)
       total += parseFloat(result[i].sales[0].price)
-      for(j in result[i].sales[0].payments){
+      for(a in result[i].sales){
+      for(j in result[i].sales[a].payments){
         // content += `
         // <tr>
         //   <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif; background-color: #FDE68A;"></td>
@@ -412,7 +421,7 @@ const pdfmake = async (req, res) => {
         
         console.log(result[i].sales)
 
-        for(k in result[i].sales[0].payments[j].transactions){
+        for(k in result[i].sales[0].payments[j].paymentTransactions){
           // content += `
           // <tr>
           //   <td style="border-color: #0f0f0f; border-style: solid; border-width: 1px; font-family:sans-serif;">${result[i].sales.payments[j].transactions[k].id} ${result[i].sales.payments[j].transactions[k].refunded === 1 ? '(reembolsado)' : ''}</td>
@@ -423,21 +432,22 @@ const pdfmake = async (req, res) => {
 
           content += `
           <tr>
-            <td class="table-body">${result[i].sales[0].payments[j].transactions[k].id}</td>
-            <td class="table-body">${new Date(result[i].sales[0].payments[j].transactions[k].created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
-            ${(result[i].sales[0].payments[j].paid === 1 && result[i].sales[0].payments[j].transactions.length === 1) ? `
-              <td class="table-body">Liquidación ${result[i].sales[0].payments[j].transactions[k].refunded === 1 ? '(reembolsada) ' : ''}del pago número ${result[i].sales[0].payments[j].number}.</td>
+            <td class="table-body">${result[i].sales[0].payments[j].paymentTransactions[k].transaction.id}</td>
+            <td class="table-body">${new Date(result[i].sales[0].payments[j].paymentTransactions[k].transaction.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+            ${(result[i].sales[0].payments[j].paid === 1 && result[i].sales[0].payments[j].paymentTransactions.length === 1) ? `
+              <td class="table-body">Liquidación ${result[i].sales[0].payments[j].paymentTransactions[k].transaction.refunded === 1 ? '(reembolsada) ' : ''}del pago número ${result[i].sales[0].payments[j].number}.</td>
               ` : `
                 ${result[i].sales[0].payments[j].number === 0 ? `
-                <td class="table-body">${result[i].sales[0].payments[j].transactions[k].id} ${result[i].sales[0].payments[j].transactions[k].refunded === 1 ? 'Enganche (reembolsado)' : 'Enganche'}.</td>
+                <td class="table-body">${result[i].sales[0].payments[j].paymentTransactions[k].transaction.id} ${result[i].sales[0].payments[j].paymentTransactions[k].transaction.refunded === 1 ? 'Enganche (reembolsado)' : 'Enganche'}.</td>
                 ` : `
-                  <td class="table-body">Abono ${result[i].sales[0].payments[j].transactions[k].id} ${result[i].sales[0].payments[j].transactions[k].refunded === 1 ? '(reembolsado) ' : ''}al pago número ${result[i].sales[0].payments[j].number}.</td>
+                  <td class="table-body">Abono ${result[i].sales[0].payments[j].paymentTransactions[k].transaction.id} ${result[i].sales[0].payments[j].paymentTransactions[k].transaction.refunded === 1 ? '(reembolsado) ' : ''}al pago número ${result[i].sales[0].payments[j].number}.</td>
                 `}
               `}
-            <td class="table-body">$${(parseFloat(result[i].sales[0].payments[j].transactions[k].amount)).toLocaleString()}</td>
+            <td class="table-body">$${(parseFloat(result[i].sales[0].payments[j].paymentTransactions[k].transaction.amount)).toLocaleString()}</td>
           </tr>
           `;
         }
+      }
       }
       content += `</table>
         <span style="font-weight:500; font-size: 16px; width: 80%; text-align:right">Pagado $${parseFloat(result[i].sales[0].paid).toLocaleString()} de $${parseFloat(result[i].sales[0].price).toLocaleString()}</span>
