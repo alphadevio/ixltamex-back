@@ -16,16 +16,20 @@ const getCut = async (req,res) =>{
   try {
     const transactions = await prisma.transactions.findMany({
       where: {
-        payments:{
-          sales:{
-            lots:{
-              apples:{
-                developments:{
-                  id:id_development
+        paymentTransactions:{
+         some:{
+          payment:{
+            sales:{
+              lots:{
+                apples:{
+                  developments:{
+                    id:id_development
+                  }
                 }
               }
             }
           }
+         }
         }, created_at: {
           gte: firstDay,
           lte: lastDay,
